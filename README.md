@@ -1,2 +1,2 @@
-# CSI_5138_project_2019Fall
-project group for CSI 5138 group members
+# project for CSI 5138:F00 (Intro of DL & RL)
+Feel free to modify everything you want.
