@@ -26,14 +26,27 @@ matplotlib.use("tkagg")
 import matplotlib.pyplot as plt
 import time
 
-def GetAdvAccuracy(keras_model, data_true, data_adv, y_true):
+def AccCalculation(y_pred, y_true):
+    """
+    Function:
+        Calculate accuracy.
+    """
+    pred = np.argmax(y_pred, axis=1)
+    gt = np.argmax(y_true, axis=1)
+    num_correct = np.sum(pred == gt).astype(np.float32)
+    num_all = pred.shape[0].astype(np.float32)
+    return num_correct / num_all
+
+def GetAdvAccuracy(classifier, data_true, data_adv, y_true):
     """
     Function:
         Get accuracy loss, perturbation and time duration on the specific 
         testing data (test set or adversarial set).
     """
-    _, true_acc = keras_model.evaluate(data_true, y_true)
-    _, adv_acc = keras_model.evaluate(data_adv, y_true)
+    true_pred = classifier.predict(data_true)
+    adv_pred = classifier.predict(data_adv)
+    true_acc = AccCalculation(true_pred, y_true)
+    adv_acc = AccCalculation(adv_pred, y_true)
     confidence_diff = true_acc - adv_acc
     perturbation = np.mean(np.abs(data_true - data_adv))
     print('Average Confidence lost: {:4.2f}%'.format(confidence_diff * 100))
@@ -71,7 +84,7 @@ def GetAttackers(classifier, x_test, attacker_name):
     if attacker_name == "FGSM":
         attacker = FastGradientMethod(classifier=classifier, eps=0.05)
     elif attacker_name == "Elastic":
-        attacker = ElasticNet(classifier=classifier, binary_search_steps=3, max_iter=10)
+        attacker = ElasticNet(classifier=classifier, binary_search_steps=2, max_iter=5)
     else:
         raise ValueError("Please get the right attacker's name for the input.")
     test_adv = attacker.generate(x_test)
@@ -98,11 +111,11 @@ def debug():
     x_adv_elastic, dt_elastic = GetAttackers(classifier, x_test_example, "Elastic")
     print("Time duration for FGSM: \t", dt_fgsm)
     print("Time duration for Elastic: \t", dt_elastic)
-    print("-------------------------------------------")
+    print("-----------------------------------------------------------------------------------------")
 
-    conf_l_fgsm, perturb_fgsm = GetAdvAccuracy(model, x_test_example, x_adv_fgsm, y_test_example)
-    print("-------------------------------------------")
-    conf_l_elast, perturb_elast = GetAdvAccuracy(model, x_test_example, x_adv_elastic, y_test_example)
+    conf_l_fgsm, perturb_fgsm = GetAdvAccuracy(classifier, x_test_example, x_adv_fgsm, y_test_example)
+    print("-----------------------------------------------------------------------------------------")
+    conf_l_elast, perturb_elast = GetAdvAccuracy(classifier, x_test_example, x_adv_elastic, y_test_example)
 
 if __name__ == "__main__":
     debug()
