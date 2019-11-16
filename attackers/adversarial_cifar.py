@@ -34,7 +34,7 @@ def AccCalculation(y_pred, y_true):
     pred = np.argmax(y_pred, axis=1)
     gt = np.argmax(y_true, axis=1)
     num_correct = np.sum(pred == gt).astype(np.float32)
-    num_all = pred.shape[0].astype(np.float32)
+    num_all = float(pred.shape[0])
     return num_correct / num_all
 
 def GetAdvAccuracy(classifier, data_true, data_adv, y_true):
@@ -84,7 +84,7 @@ def GetAttackers(classifier, x_test, attacker_name):
     if attacker_name == "FGSM":
         attacker = FastGradientMethod(classifier=classifier, eps=0.05)
     elif attacker_name == "Elastic":
-        attacker = ElasticNet(classifier=classifier, binary_search_steps=2, max_iter=5)
+        attacker = ElasticNet(classifier=classifier, binary_search_steps=5, max_iter=20)
     else:
         raise ValueError("Please get the right attacker's name for the input.")
     test_adv = attacker.generate(x_test)
@@ -101,8 +101,8 @@ def debug():
     add your attacker's name here.
     """
     x_train, y_train, x_test, y_test, model, min_, max_ = GetCifar10WithModel()
-    x_test_example = x_test[:2]
-    y_test_example = y_test[:2]
+    x_test_example = x_test
+    y_test_example = y_test
 
     classifier = KerasClassifier(clip_values=(min_, max_), model=model, use_logits=False, 
                                 preprocessing=(0.5, 1))
@@ -112,7 +112,6 @@ def debug():
     print("Time duration for FGSM: \t", dt_fgsm)
     print("Time duration for Elastic: \t", dt_elastic)
     print("-----------------------------------------------------------------------------------------")
-
     conf_l_fgsm, perturb_fgsm = GetAdvAccuracy(classifier, x_test_example, x_adv_fgsm, y_test_example)
     print("-----------------------------------------------------------------------------------------")
     conf_l_elast, perturb_elast = GetAdvAccuracy(classifier, x_test_example, x_adv_elastic, y_test_example)
