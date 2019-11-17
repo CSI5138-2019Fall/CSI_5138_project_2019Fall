@@ -111,9 +111,9 @@ def debug():
     x_adv_elastic, dt_elastic = GetAttackers(classifier, x_test_example, "Elastic")
     print("Time duration for FGSM: \t", dt_fgsm)
     print("Time duration for Elastic: \t", dt_elastic)
-    print("-----------------------------------------------------------------------------------------")
+    print("---------------------------------------------------------------------")
     conf_l_fgsm, perturb_fgsm = GetAdvAccuracy(classifier, x_test_example, x_adv_fgsm, y_test_example)
-    print("-----------------------------------------------------------------------------------------")
+    print("---------------------------------------------------------------------")
     conf_l_elast, perturb_elast = GetAdvAccuracy(classifier, x_test_example, x_adv_elastic, y_test_example)
 
 if __name__ == "__main__":
