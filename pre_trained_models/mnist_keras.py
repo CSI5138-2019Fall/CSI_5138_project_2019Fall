@@ -19,7 +19,7 @@ from tensorflow.keras import backend as K
 
 batch_size = 128
 num_classes = 10
-epochs = 12
+epochs = 10
 
 # input image dimensions
 img_rows, img_cols = 28, 28
@@ -57,7 +57,7 @@ model.add(Dropout(0.5))
 model.add(Dense(num_classes, activation='softmax'))
 
 model.compile(loss=keras.losses.categorical_crossentropy,
-              optimizer=keras.optimizers.Adadelta(),
+              optimizer=keras.optimizers.Adam(),
               metrics=['accuracy'])
 
 model.fit(x_train, y_train,
@@ -65,7 +65,7 @@ model.fit(x_train, y_train,
           epochs=epochs,
           verbose=1,
           validation_data=(x_test, y_test))
-model.save("model.h5")
+model.save("mnist_keras.h5")
 score = model.evaluate(x_test, y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
