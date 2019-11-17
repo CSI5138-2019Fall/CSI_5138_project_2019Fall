@@ -72,7 +72,7 @@ def GetCifar10WithModel():
                     url='https://www.dropbox.com/s/ta75pl4krya5djj/cifar_resnet.h5?dl=1')
     classifier_model = load_model(path)
 
-    classifier_model.summary()
+    # classifier_model.summary()
     return x_train, y_train, x_test, y_test, classifier_model, min_, max_
 
 def GetAttackers(classifier, x_test, attacker_name):
@@ -101,8 +101,8 @@ def debug():
     add your attacker's name here.
     """
     x_train, y_train, x_test, y_test, model, min_, max_ = GetCifar10WithModel()
-    x_test_example = x_test
-    y_test_example = y_test
+    x_test_example = x_test[:10]
+    y_test_example = y_test[:10]
 
     classifier = KerasClassifier(clip_values=(min_, max_), model=model, use_logits=False, 
                                 preprocessing=(0.5, 1))
