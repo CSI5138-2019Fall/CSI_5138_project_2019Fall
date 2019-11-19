@@ -8,7 +8,7 @@ warnings.filterwarnings('ignore')
 
 import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
-############################
+###########################
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
@@ -18,7 +18,7 @@ from tensorflow.keras.models import load_model
 from art import DATA_PATH
 from art.utils import load_dataset, get_file
 from art.classifiers import KerasClassifier
-from art.attacks import FastGradientMethod, ElasticNet
+from art.attacks import AdversarialPatch, Attack, BoundaryAttack
 
 import numpy as np
 import matplotlib
@@ -44,6 +44,7 @@ def GetAdvAccuracy(classifier, data_true, data_adv, y_true):
         testing data (test set or adversarial set).
     """
     true_pred = classifier.predict(data_true)
+    #data_adv = np.asarray(data_adv)
     adv_pred = classifier.predict(data_adv)
     true_acc = AccCalculation(true_pred, y_true)
     adv_acc = AccCalculation(adv_pred, y_true)
@@ -81,42 +82,58 @@ def GetAttackers(classifier, x_test, attacker_name):
         Load classifier and generate adversarial samples
     """
     t_start = time.time()
-    if attacker_name == "FGSM":
-        attacker = FastGradientMethod(classifier=classifier, eps=0.05)
-    elif attacker_name == "Elastic":
-        attacker = ElasticNet(classifier=classifier, confidence=0.5)#, binary_search_steps=5, max_iter=20)
+    if attacker_name == "AdversarialPatch":
+        attacker = AdversarialPatch(classifier=classifier, max_iter=10)
+    elif attacker_name == "Attack":
+        attacker = Attack(classifier=classifier)
+    elif attacker_name == "BoundaryAttack":
+        attacker = BoundaryAttack(classifier=classifier, targeted=False, epsilon=0.05, max_iter=10) #, max_iter=20
     else:
         raise ValueError("Please get the right attacker's name for the input.")
     test_adv = attacker.generate(x_test)
     dt = time.time() - t_start
     return test_adv, dt
 
+
 def debug():
     """
     Function:
         For debugging.
     For attacker_name:
-        "FGSM"
-        "Elastic"
+        "AdversarialPatch"
+        "Attack"
+		"BoundaryAttack"
     add your attacker's name here.
     """
     x_train, y_train, x_test, y_test, model, min_, max_ = GetCifar10WithModel()
     x_test_example = x_test[:10]
     y_test_example = y_test[:10]
 
-    classifier = KerasClassifier(clip_values=(min_, max_), model=model, use_logits=False, 
-                                preprocessing=(0.5, 1))
+    classifier = KerasClassifier(clip_values=(min_, max_), model=model, use_logits=False, preprocessing=(0.5, 1))
     
-    x_adv_fgsm, dt_fgsm = GetAttackers(classifier, x_test_example, "FGSM")
-    np.save("samples/FGSM_adv_cifar.npy", x_adv_fgsm)
-    x_adv_elastic, dt_elastic = GetAttackers(classifier, x_test_example, "Elastic")
-    np.save("samples/Elastic_adv_cifar.npy", x_adv_elastic)
-    print("Time duration for FGSM: \t", dt_fgsm)
-    print("Time duration for Elastic: \t", dt_elastic)
-    print("---------------------------------------------------------------------")
-    conf_l_fgsm, perturb_fgsm = GetAdvAccuracy(classifier, x_test_example, x_adv_fgsm, y_test_example)
-    print("---------------------------------------------------------------------")
-    conf_l_elast, perturb_elast = GetAdvAccuracy(classifier, x_test_example, x_adv_elastic, y_test_example)
+    x_adv_adversial_patch, dt_adversial_patch = GetAttackers(classifier, x_test_example, "AdversarialPatch")
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212)
+    ax1.imshow(x_adv_adversial_patch[0])
+    ax2.imshow(x_adv_adversial_patch[1])
+    plt.show()
+    #x_adv_adversial_patch, = x_adv_adversial_patch
+    #print(x_adv_adversial_patch)
+    #x_adv_attack, dt_attack = GetAttackers(classifier, x_test_example, "Attack")
+    #x_adv_boundary_attack, dt_boundary_attack = GetAttackers(classifier, x_test_example, "BoundaryAttack")
+
+    print("Time duration for AdversarialPatch: \t", dt_adversial_patch)
+    #print("Time duration for Attack: \t", dt_attack)
+    #print("Time duration for BoundaryAttack: \t", dt_boundary_attack)
+
+    # print("---------------------------------------------------------------------")
+    # conf_l_adversial_patch, perturb_adversial_patch = GetAdvAccuracy(classifier, x_test_example, x_adv_adversial_patch, y_test_example)
+    #print("---------------------------------------------------------------------")
+    #conf_l_attack, perturb_attack = GetAdvAccuracy(classifier, x_test_example, x_adv_attack, y_test_example)
+    #print("---------------------------------------------------------------------")
+    #conf_l_boundary_attack, perturb_boundary_attack = GetAdvAccuracy(classifier, x_test_example, x_adv_boundary_attack, y_test_example)
+
 
 if __name__ == "__main__":
     debug()

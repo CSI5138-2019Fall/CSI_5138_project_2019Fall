@@ -97,7 +97,7 @@ def GetAttackers(classifier, x_test, attacker_name):
     if attacker_name == "FGSM":
         attacker = FastGradientMethod(classifier=classifier, eps=0.3)
     elif attacker_name == "Elastic":
-        attacker = ElasticNet(classifier=classifier, binary_search_steps=5, max_iter=20)
+        attacker = ElasticNet(classifier=classifier, confidence=0.5)
     else:
         raise ValueError("Please get the right attacker's name for the input.")
     test_adv = attacker.generate(x_test)
@@ -114,13 +114,15 @@ def debug():
     add your attacker's name here.
     """
     x_train, y_train, x_test, y_test, model, min_, max_ = GetMnistWithModel()
-    x_test_example = x_test[:10]
-    y_test_example = y_test[:10]
+    x_test_example = x_test[:100]
+    y_test_example = y_test[:100]
 
     classifier = KerasClassifier(model=model, clip_values=(min_, max_))
     
     x_adv_fgsm, dt_fgsm = GetAttackers(classifier, x_test_example, "FGSM")
+    np.save("samples/FGSM_adv_mnist.npy", x_adv_fgsm)
     x_adv_elastic, dt_elastic = GetAttackers(classifier, x_test_example, "Elastic")
+    np.save("samples/Elastic_adv_mnist.npy", x_adv_elastic)
     print("Time duration for FGSM: \t", dt_fgsm)
     print("Time duration for Elastic: \t", dt_elastic)
     print("---------------------------------------------------------------------")
