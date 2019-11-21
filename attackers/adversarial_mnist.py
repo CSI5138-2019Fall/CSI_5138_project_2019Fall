@@ -1,7 +1,7 @@
 ##### set specific gpu #####
 import os
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -55,9 +55,9 @@ def GetAdvAccuracy(classifier, data_true, data_adv, y_true):
     confidence_diff = true_acc - adv_acc
 
     perturbation = np.mean(np.abs(data_true - data_adv))
-    print('Test acc: {:4.2f}%, adversarial acc: {:4.2f}%'.format(true_acc*100, adv_acc*100))
-    print('Average Confidence lost: {:4.2f}%'.format(confidence_diff * 100))
-    print('Average Image perturbation: {:4.2f}'.format(perturbation))
+    print('Test acc: {:.4f}%, adversarial acc: {:.4f}%'.format(true_acc*100, adv_acc*100))
+    print('Average Confidence lost: {:.4f}%'.format(confidence_diff * 100))
+    print('Average Image perturbation: {:.4f}'.format(perturbation))
     return confidence_diff, perturbation
 
 def GetMnistWithModel():

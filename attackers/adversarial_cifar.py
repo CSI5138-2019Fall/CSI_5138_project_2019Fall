@@ -1,7 +1,7 @@
 ##### set specific gpu #####
 import os
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -33,7 +33,7 @@ def AccCalculation(y_pred, y_true):
     """
     pred = np.argmax(y_pred, axis=1)
     gt = np.argmax(y_true, axis=1)
-    num_correct = np.sum(pred == gt).astype(np.float32)
+    num_correct = np.sum(y_pred[pred == gt]).astype(np.float32)
     num_all = float(pred.shape[0])
     return num_correct / num_all
 
@@ -49,8 +49,9 @@ def GetAdvAccuracy(classifier, data_true, data_adv, y_true):
     adv_acc = AccCalculation(adv_pred, y_true)
     confidence_diff = true_acc - adv_acc
     perturbation = np.mean(np.abs(data_true - data_adv))
-    print('Average Confidence lost: {:4.2f}%'.format(confidence_diff * 100))
-    print('Average Image perturbation: {:4.2f}'.format(perturbation))
+    print('Test acc: {:.4f}%, adversarial acc: {:.4f}%'.format(true_acc*100, adv_acc*100))
+    print('Average Confidence lost: {:.4f}%'.format(confidence_diff * 100))
+    print('Average Image perturbation: {:.4f}'.format(perturbation))
     return confidence_diff, perturbation
 
 def GetCifar10WithModel():
@@ -82,9 +83,10 @@ def GetAttackers(classifier, x_test, attacker_name):
     """
     t_start = time.time()
     if attacker_name == "FGSM":
-        attacker = FastGradientMethod(classifier=classifier, eps=0.05)
+        attacker = FastGradientMethod(classifier=classifier, eps=0.03)
     elif attacker_name == "Elastic":
-        attacker = ElasticNet(classifier=classifier, confidence=0.5)#, binary_search_steps=5, max_iter=20)
+        attacker = ElasticNet(classifier=classifier, confidence=0.5, batch_size=x_test.shape[0],)
+                            # beta=1e-2, binary_search_steps=5, max_iter=20)
     else:
         raise ValueError("Please get the right attacker's name for the input.")
     test_adv = attacker.generate(x_test)
@@ -101,12 +103,11 @@ def debug():
     add your attacker's name here.
     """
     x_train, y_train, x_test, y_test, model, min_, max_ = GetCifar10WithModel()
-    x_test_example = x_test[:10]
-    y_test_example = y_test[:10]
+    x_test_example = x_test[:2]
+    y_test_example = y_test[:2]
 
-    classifier = KerasClassifier(clip_values=(min_, max_), model=model, use_logits=False, 
-                                preprocessing=(0.5, 1))
-    
+    classifier = KerasClassifier(model=model, clip_values=(min_, max_))
+
     x_adv_fgsm, dt_fgsm = GetAttackers(classifier, x_test_example, "FGSM")
     np.save("samples/FGSM_adv_cifar.npy", x_adv_fgsm)
     x_adv_elastic, dt_elastic = GetAttackers(classifier, x_test_example, "Elastic")
