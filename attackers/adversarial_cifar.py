@@ -111,13 +111,13 @@ def GetAttackers(classifier, x_test, attacker_name):
     elif attacker_name == "VirtualAdversarialMethod":
         attacker = VirtualAdversarialMethod(classifier=classifier, max_iter=20)
     elif attacker_name == "UniversalPerturbation":
-        attacker = UniversalPerturbation(classifier=classifier, max_iter=5, eps=10.0)
+        attacker = UniversalPerturbation(classifier=classifier, max_iter=1, eps=10.0)
     elif attacker_name == "CarliniL2":
         attacker = CarliniL2Method(classifier=classifier, confidence=0.5, learning_rate=0.001, max_iter=15)
     elif attacker_name == "CarliniLinf":
         attacker = CarliniLInfMethod(classifier=classifier, confidence=0.5, learning_rate=0.001, max_iter=15)
     elif attacker_name == "DeepFool":
-        attacker = DeepFool(classifier, max_iter=10)
+        attacker = DeepFool(classifier, max_iter=2, nb_grads=5)
     elif attacker_name == "AdversarialPatch":
         attacker = AdversarialPatch(classifier=classifier, max_iter=20)
     elif attacker_name == "Attack":
