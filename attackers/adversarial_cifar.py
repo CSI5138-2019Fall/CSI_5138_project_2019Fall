@@ -151,7 +151,7 @@ def debug(attacker_which):
     classifier = KerasClassifier(model=model, clip_values=(min_, max_))
 
     x_adv, dt = GetAttackers(classifier, x_test_example, attacker_which)
-    np.save("samples/" + attacker_which + "_adv_mnist.npy", x_adv)
+    np.save("samples/" + attacker_which + "_adv_cifar.npy", x_adv)
 
     # x_adv_fgsm, dt_fgsm = GetAttackers(classifier, x_test_example, "FGSM")
     # np.save("samples/FGSM_adv_cifar.npy", x_adv_fgsm)
@@ -184,13 +184,8 @@ if __name__ == "__main__":
        "SMM",
        "PGD",
     """
-    attackers = ["FGSM",
-       "Elastic",
-       "BasicIterativeMethod",
-       "NewtonFool",
-       "HopSkipJump",
-       "ZooAttack",
-       "VirtualAdversarialMethod",
+
+    attackers = [
        "UniversalPerturbation",
        "BoundaryAttack",
        "CarliniL2",
