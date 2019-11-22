@@ -55,14 +55,14 @@ if __name__ == "__main__":
        "HopSkipJump",
        "ZooAttack",
        "VirtualAdversarialMethod",
-       "UniversalPerturbation",
+    #    "UniversalPerturbation",
        "BoundaryAttack",
        "CarliniL2",
        "CarliniLinf",
-       "DeepFool",
+    #    "DeepFool",
        "SMM",
        "PGD",]
-    dataset_names = ['mnist']#, 'cifar']
+    dataset_names = ['cifar']
     imgs = []
     for attacker_name in attacker_names:
         for dataset_name in dataset_names:

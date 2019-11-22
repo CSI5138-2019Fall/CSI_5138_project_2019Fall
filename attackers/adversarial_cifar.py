@@ -185,9 +185,22 @@ if __name__ == "__main__":
        "PGD",
     """
 
-    attackers = [
+    attackers = ["FGSM",
+       "Elastic",
+       "BasicIterativeMethod",
+       "NewtonFool",
+       "HopSkipJump",
+       "ZooAttack",
+       "VirtualAdversarialMethod",
+       "UniversalPerturbation",
+       # "AdversarialPatch",
+       # "Attack",
+       "BoundaryAttack",
+       "CarliniL2",
+       "CarliniLinf",
        "DeepFool",
-       "UniversalPerturbation"]
+       "SMM",
+       "PGD",]
     for i in tqdm(range(len(attackers))):
         attacker = attackers[i]
         debug(attacker)

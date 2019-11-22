@@ -24,7 +24,7 @@ def PlotAll(dataset_name):
         img = cv2.imread(img_name)
         blank = np.zeros(img.shape)
         img = img[..., ::-1]
-        if count <=7:
+        if count <=6:
             imgs_row1.append(img)
         else:
             imgs_row2.append(img)
@@ -43,5 +43,5 @@ def PlotAll(dataset_name):
     plt.show()
 
 if __name__ == "__main__":
-    dataset_name = "mnist"
+    dataset_name = "cifar"
     PlotAll(dataset_name)
