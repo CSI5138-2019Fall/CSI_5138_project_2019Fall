@@ -186,10 +186,6 @@ if __name__ == "__main__":
     """
 
     attackers = [
-       "UniversalPerturbation",
-       "BoundaryAttack",
-       "CarliniL2",
-       "CarliniLinf",
        "DeepFool",
        "SMM",
        "PGD",]
