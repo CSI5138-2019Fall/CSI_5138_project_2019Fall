@@ -15,17 +15,25 @@ assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 from tensorflow.keras.models import load_model
+import logging
 
 from art import DATA_PATH
 from art.utils import load_dataset, get_file
 from art.classifiers import KerasClassifier
 from art.attacks import FastGradientMethod, ElasticNet
+from art.attacks import NewtonFool,BasicIterativeMethod,HopSkipJump,ZooAttack,VirtualAdversarialMethod,UniversalPerturbation
+from art.attacks.projected_gradient_descent import ProjectedGradientDescent
+from art.attacks import AdversarialPatch, Attack, BoundaryAttack
+from art.attacks.carlini import CarliniL2Method, CarliniLInfMethod
+from art.attacks.deepfool import DeepFool
+from art.attacks import  ProjectedGradientDescent, SaliencyMapMethod
 
 import numpy as np
 import matplotlib
 matplotlib.use("tkagg")
 import matplotlib.pyplot as plt
 import time
+from tqdm import tqdm
 
 def AccCalculation(y_pred, y_true):
     """
@@ -98,13 +106,41 @@ def GetAttackers(classifier, x_test, attacker_name):
         attacker = FastGradientMethod(classifier=classifier, eps=0.3)
     elif attacker_name == "Elastic":
         attacker = ElasticNet(classifier=classifier, confidence=0.5)
+    elif attacker_name == "BasicIterativeMethod":
+        attacker = BasicIterativeMethod(classifier=classifier, eps=0.3)
+    elif attacker_name == "NewtonFool":
+        attacker = NewtonFool(classifier=classifier, max_iter=20)
+    elif attacker_name == "HopSkipJump":
+        attacker =HopSkipJump(classifier=classifier, max_iter=20)
+    elif attacker_name == "ZooAttack":
+        attacker =ZooAttack(classifier=classifier, max_iter=20)
+    elif attacker_name == "VirtualAdversarialMethod":
+        attacker =VirtualAdversarialMethod(classifier=classifier, max_iter=20)
+    elif attacker_name == "UniversalPerturbation":
+        attacker =UniversalPerturbation(classifier=classifier, max_iter=20)
+    elif attacker_name == "AdversarialPatch":
+        attacker = AdversarialPatch(classifier=classifier, max_iter=20)
+    elif attacker_name == "Attack":
+        attacker = Attack(classifier=classifier)
+    elif attacker_name == "BoundaryAttack":
+        attacker = BoundaryAttack(classifier=classifier, targeted=False, epsilon=0.05, max_iter=20) #, max_iter=20
+    elif attacker_name == "CarliniL2":
+        attacker = CarliniL2Method(classifier=classifier, confidence=0.5, learning_rate=0.001, max_iter=15)
+    elif attacker_name == "CarliniLinf":
+        attacker = CarliniLInfMethod(classifier=classifier, confidence=0.5, learning_rate=0.001, max_iter=15)
+    elif attacker_name == "DeepFool":
+        attacker = DeepFool(classifier)
+    elif attacker_name == "SMM":
+        attacker = SaliencyMapMethod(classifier=classifier, theta=2)
+    elif attacker_name == "PGD":
+        attacker = ProjectedGradientDescent(classifier=classifier, norm=2, eps=1, eps_step=0.5)
     else:
         raise ValueError("Please get the right attacker's name for the input.")
     test_adv = attacker.generate(x_test)
     dt = time.time() - t_start
     return test_adv, dt
 
-def debug():
+def debug(attacker_which):
     """
     Function:
         For debugging.
@@ -114,21 +150,59 @@ def debug():
     add your attacker's name here.
     """
     x_train, y_train, x_test, y_test, model, min_, max_ = GetMnistWithModel()
-    x_test_example = x_test[:100]
-    y_test_example = y_test[:100]
+    x_test_example = x_test[:1]
+    y_test_example = y_test[:1]
 
     classifier = KerasClassifier(model=model, clip_values=(min_, max_))
+
+    x_adv, dt = GetAttackers(classifier, x_test_example, attacker_which)
+    np.save("samples/" + attacker_which + "_adv_mnist.npy", x_adv)
     
-    x_adv_fgsm, dt_fgsm = GetAttackers(classifier, x_test_example, "FGSM")
-    np.save("samples/FGSM_adv_mnist.npy", x_adv_fgsm)
-    x_adv_elastic, dt_elastic = GetAttackers(classifier, x_test_example, "Elastic")
-    np.save("samples/Elastic_adv_mnist.npy", x_adv_elastic)
-    print("Time duration for FGSM: \t", dt_fgsm)
-    print("Time duration for Elastic: \t", dt_elastic)
-    print("---------------------------------------------------------------------")
-    conf_l_fgsm, perturb_fgsm = GetAdvAccuracy(classifier, x_test_example, x_adv_fgsm, y_test_example)
-    print("---------------------------------------------------------------------")
-    conf_l_elast, perturb_elast = GetAdvAccuracy(classifier, x_test_example, x_adv_elastic, y_test_example)
+    # x_adv_fgsm, dt_fgsm = GetAttackers(classifier, x_test_example, "FGSM")
+    # np.save("samples/FGSM_adv_mnist.npy", x_adv_fgsm)
+    # x_adv_elastic, dt_elastic = GetAttackers(classifier, x_test_example, "Elastic")
+    # np.save("samples/Elastic_adv_mnist.npy", x_adv_elastic)
+    # print("Time duration for FGSM: \t", dt_fgsm)
+    # print("Time duration for Elastic: \t", dt_elastic)
+    # print("---------------------------------------------------------------------")
+    # conf_l_fgsm, perturb_fgsm = GetAdvAccuracy(classifier, x_test_example, x_adv_fgsm, y_test_example)
+    # print("---------------------------------------------------------------------")
+    # conf_l_elast, perturb_elast = GetAdvAccuracy(classifier, x_test_example, x_adv_elastic, y_test_example)
 
 if __name__ == "__main__":
-    debug()
+    """
+    attacker:
+       "FGSM",
+       "Elastic",
+       "BasicIterativeMethod",
+       "NewtonFool",
+       "HopSkipJump",
+       "ZooAttack",
+       "VirtualAdversarialMethod",
+       "UniversalPerturbation",
+       # "AdversarialPatch",
+       # "Attack",
+       "BoundaryAttack",
+       "CarliniL2",
+       "CarliniLinf",
+       "DeepFool",
+       "SMM",
+       "PGD",
+    """
+    attackers = ["FGSM",
+       "Elastic",
+       "BasicIterativeMethod",
+       "NewtonFool",
+       "HopSkipJump",
+       "ZooAttack",
+       "VirtualAdversarialMethod",
+       "UniversalPerturbation",
+       "BoundaryAttack",
+       "CarliniL2",
+       "CarliniLinf",
+       "DeepFool",
+       "SMM",
+       "PGD",]
+    for i in tqdm(range(len(attackers))):
+        attacker = attackers[i]
+        debug(attacker)
