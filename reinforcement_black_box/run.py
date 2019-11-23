@@ -1,7 +1,7 @@
 ##### set specific gpu #####
 import os
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -25,11 +25,7 @@ from environment import Environment
 from table import BlackBoxAgent
 
 
-
-
-
-
-if __name__ == "__main__":
+def debug(load_tables=False, save_tables=True):
     # hyper-parameters settings
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
@@ -40,7 +36,19 @@ if __name__ == "__main__":
     env = Environment(batch_size)
     agent = BlackBoxAgent(image_shape, noise_epsilon, similarity_threshold, exploration_decay)
 
-    for i in range(100):
+    plt.ion()
+    fig = plt.figure()
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212)
+
+    x = []
+    y1 = []
+    y2 = []
+
+    if load_tables:
+        agent.LoadTables()
+
+    for i in range(10000000000):
         state, state_label = env.State()
         action, noise = agent.GenerateAdvSample(state)
         reward = env.Reward(action, state_label)
@@ -49,8 +57,20 @@ if __name__ == "__main__":
         agent.UpdateExplorationRate()
 
         print(agent.agent_table.shape)
+        x.append(i)
+        y1.append(agent.agent_table.shape[0])
+        y2.append(agent.agent_table.shape[1])
 
-    # fig = plt.figure()
-    # ax1 = fig.add_subplot(111)
-    # ax1.imshow(np.squeeze(state[0]), cmap = 'gray')
-    # plt.show()
+        if save_tables:
+            if i % 1000 == 0:
+                agent.SaveTables()
+
+        ax1.clear()
+        ax1.plot(x, y1, 'r')
+        ax2.clear()
+        ax2.plot(x, y2, 'b')
+        fig.canvas.draw()
+        plt.pause(0.001)
+
+if __name__ == "__main__":
+    debug()

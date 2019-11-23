@@ -1,7 +1,7 @@
 ##### set specific gpu #####
 import os
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+# os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -63,8 +63,8 @@ class BlackBoxAgent(object):
         Function:
             Update tables for new noise.
         """
-        current_len_imgt = len(self.image_table)
-        new_index = current_len_imgt
+        current_len_noiset = len(self.noise_table)
+        new_index = current_len_noiset
         new_key = 'noise' + str(new_index)
 
         new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
@@ -101,15 +101,18 @@ class BlackBoxAgent(object):
         Function:
             Find out whether the value is in the table
         """
-        return np.any([value == x for x in list(table.values())])
+        return np.any([(value==y).all() for x,y in table.items()])
 
-    def FindIndex(self, data, table):
+    def FindIndex(self, data, table, keywords):
         """
         Function: 
             Find the key according to the value in a dictionary.
         """
         finding = [x for x,y in table.items() if (y==data).all()]
-        return finding[0]
+        found = finding[0]
+        index = found.replace(keywords, '')
+        index = int(index)
+        return index
 
     def GenerateAdvSample(self, input_image):
         """
@@ -118,8 +121,11 @@ class BlackBoxAgent(object):
         """
         if not self.ExistInTable(input_image, self.image_table):
             self.UpdateState(input_image)
+        #     print("-------------",len(self.image_table))
+        # else:
+        #     print("-------------, not updated.")
 
-        row_index = self.FindIndex(input_image, self.image_table)
+        row_index = self.FindIndex(input_image, self.image_table, 'img')
         
         exploring = np.random.uniform(low=0.0, high=1.0)
         if (exploring < self.exploration_rate) or (self.agent_table[row_index].max() == 0.):
@@ -135,9 +141,9 @@ class BlackBoxAgent(object):
         Function:
             Update Agent table according to the reward from the environment.
         """
-        row_index = self.FindIndex(input_image, self.image_table)
-        col_index = self.FindIndex(noise, self.noise_table)
-        if (len(self.agent_table.shape) > 1) and (reward >= self.agent_table[row_index, col_index]):
+        row_index = self.FindIndex(input_image, self.image_table, 'img')
+        col_index = self.FindIndex(noise, self.noise_table, 'noise')
+        if (reward >= self.agent_table[row_index, col_index]):
             self.agent_table[row_index, col_index] = reward
 
 
