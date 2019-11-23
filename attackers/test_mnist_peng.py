@@ -1,5 +1,4 @@
 import warnings
-
 warnings.filterwarnings('ignore')
 
 import tensorflow as tf
