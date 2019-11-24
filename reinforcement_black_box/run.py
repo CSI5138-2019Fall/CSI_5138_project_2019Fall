@@ -33,7 +33,7 @@ def debug(load_tables=False, save_tables=True):
     image_shape = (batch_size, 28, 28, 1)
     noise_epsilon = 0.1 # max value of the images is 1.0
     similarity_threshold = 0.01
-    exploration_decay = 0.8
+    exploration_decay = 0.5
     exploration_decay_steps = 1000
 
     env = Environment(batch_size)
