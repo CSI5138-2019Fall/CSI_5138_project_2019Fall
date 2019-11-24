@@ -43,6 +43,12 @@ class Environment(object):
         x_test = x_test.astype('float32')
         x_train /= 255.
         x_test /= 255.
+        test_index = np.arange(len(x_test))
+        np.random.shuffle(test_index)
+        x_test = x_test[test_index]
+        x_test = x_test[:1000]
+        y_test = y_test[test_index]
+        y_test = y_test[:1000]
         return x_train, y_train, x_test, y_test
 
     def GetMnistPretrainedModel(self,):

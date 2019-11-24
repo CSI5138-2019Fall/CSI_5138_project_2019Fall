@@ -32,7 +32,9 @@ class BlackBoxAgent(object):
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
-        self.reward_threshold = 0.5
+        self.reward_threshold = 0.3
+        self.decay_threshold = 0.5
+        self.decay_cmd = False
         self.image_table = {}
         self.noise_table = {}
         self.agent_table = np.zeros((1, 1))
@@ -115,6 +117,21 @@ class BlackBoxAgent(object):
         index = found.replace(keywords, '')
         index = int(index)
         return index
+
+    def IfDecay(self,):
+        """
+        Function:
+            Give the cmd whether start to apply exploration decay.
+        """
+        all_boolean = []
+        for i in range(self.agent_table.shape[0]):
+            boolean_mask = self.agent_table[i].max() > self.reward_threshold
+            all_boolean.append(boolean_mask)
+        all_boolean = np.array(all_boolean).astype(np.float32)
+        if all_boolean.mean() > self.decay_threshold:
+            self.decay_cmd = True
+        else:
+            self.decay_cmd = False
 
     def GenerateAdvSample(self, input_image):
         """
