@@ -8,7 +8,7 @@ warnings.filterwarnings('ignore')
 
 import tensorflow as tf
 import tensorflow.keras as keras
-tf.compat.v1.disable_eager_execution()
+# tf.compat.v1.disable_eager_execution()
 ##### gpu memory management #####
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
@@ -77,32 +77,6 @@ class Environment(object):
         acc = np.sum(label_onehot*prediction) / image.shape[0]
         return 1. - acc
 
-    def SaveTables(self,):
-        """
-        Function:
-            Save all tables and dictionaries
-        """
-        print("----------- saving agent table -----------")
-        np.save('tables/agent_table.npy', self.agent_table)
-        print("----------- saving image table -----------")
-        with open("tables/image_table.pickle", "wb") as f_img:
-            pickle.dump(self.image_table, f_img)
-        print("----------- saving noise table -----------")
-        with open("tables/noise_table.pickle", "wb") as f_noise:
-            pickle.dump(self.noise_table, f_noise)
 
-    def LoadTables(self,):
-        """
-        Function:
-            Load all saved tables.
-        """
-        print("----------- loading agent table -----------")
-        self.agent_table = np.load('tables/agent_table.npy')
-        print("----------- loading image table -----------")
-        with open("tables/image_table.pickle", "rb") as f_img:
-            self.image_table = pickle.load(f_img)
-        print("----------- loading noise table -----------")
-        with open("tables/noise_table.pickle", "rb") as f_noise:
-            self.noise_table = pickle.load(f_noise)
 
 
