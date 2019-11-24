@@ -32,6 +32,7 @@ class BlackBoxAgent(object):
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
+        self.reward_threshold = 0.5
         self.image_table = {}
         self.noise_table = {}
         self.agent_table = np.zeros((1, 1))
@@ -129,7 +130,7 @@ class BlackBoxAgent(object):
         row_index = self.FindIndex(input_image, self.image_table, 'img')
         
         exploring = np.random.uniform(low=0.0, high=1.0)
-        if (exploring < self.exploration_rate) or (self.agent_table[row_index].max() == 0.):
+        if (exploring < self.exploration_rate) or (self.agent_table[row_index].max() < self.reward_threshold):
             noise = self.UpdateNoise()
         else:
             noise = self.SelectNoise(row_index)
