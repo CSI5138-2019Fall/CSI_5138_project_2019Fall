@@ -34,7 +34,7 @@ def debug(load_tables=False, save_tables=True):
     noise_epsilon = 0.1 # max value of the images is 1.0
     similarity_threshold = 0.01
     exploration_decay = 0.5
-    exploration_decay_steps = 1000
+    exploration_decay_steps = 5000
 
     env = Environment(batch_size)
     agent = BlackBoxAgent(image_shape, noise_epsilon, similarity_threshold, exploration_decay)
@@ -63,7 +63,7 @@ def debug(load_tables=False, save_tables=True):
             tf.summary.scalar('img_table_size', img_table_size, step=i)
             tf.summary.scalar('noise_table_size', noise_table_size, step=i)
 
-        if (i+1) % exploration_decay_steps == 0:
+        if (i >= 30000) and (i % exploration_decay_steps == 0):
             agent.UpdateExplorationRate()
             with summary_writer.as_default():
                 tf.summary.scalar('exploration_rate', agent.exploration_rate, step=i)
