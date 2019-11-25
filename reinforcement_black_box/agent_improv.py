@@ -20,7 +20,7 @@ class BlackBoxAgent(object):
         self.exploration_rate = 1.0
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
-        self.precision = 3
+        self.precision = 2
         self.reward_threshold = 0.5
         self.decay_threshold = 0.7
         self.decay_cmd = False
