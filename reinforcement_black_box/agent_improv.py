@@ -17,7 +17,7 @@ class BlackBoxAgent(object):
         """
         self.image_shape = image_shape
         self.epsilon = epsilon
-        self.alpha = 0.6
+        self.alpha = 0.5
         self.exploration_rate = 1.0
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')

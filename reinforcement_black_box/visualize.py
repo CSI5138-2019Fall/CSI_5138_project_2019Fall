@@ -43,7 +43,7 @@ if __name__ == "__main__":
             originals.append(np.squeeze(state))
             adv_samples.append(np.squeeze(adv_sample))
             count += 1
-        if count >= 20:
+        if count >= 10:
             break
     
     originals = np.concatenate(originals, axis=1)
