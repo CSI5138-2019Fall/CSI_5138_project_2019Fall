@@ -33,7 +33,7 @@ class BlackBoxAgent(object):
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
         self.reward_threshold = 0.45
-        self.decay_threshold = 0.5
+        self.decay_threshold = 0.6
         self.decay_cmd = False
         self.image_table = {}
         self.agent_table = {}
