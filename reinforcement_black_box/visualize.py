@@ -42,6 +42,9 @@ if __name__ == "__main__":
             adv_sample = state + adv_noise
             originals.append(np.squeeze(state))
             adv_samples.append(np.squeeze(adv_sample))
+            count += 1
+        if count >= 20:
+            break
     
     originals = np.concatenate(originals, axis=1)
     adv_samples = np.concatenate(adv_samples, axis=1)
