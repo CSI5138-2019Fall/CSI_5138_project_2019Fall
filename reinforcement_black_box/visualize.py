@@ -6,12 +6,10 @@ import pickle
 
 from environment import Environment
 # from table import BlackBoxAgent
-from agent_improv import BlackBoxAgent
+from agent_improv2 import BlackBoxAgent
 import matplotlib
 matplotlib.use('tkagg')
 import matplotlib.pyplot as plt
-
-
 
 
 if __name__ == "__main__":
@@ -20,7 +18,7 @@ if __name__ == "__main__":
     image_shape = (batch_size, 28, 28, 1)
     noise_epsilon = 0.8 # max value of the images is 1.0
     exploration_decay = 0.9
-    exploration_decay_steps = 500
+    exploration_decay_steps = 1000
     similarity_threshold = 0.01
 
     env = Environment(batch_size)

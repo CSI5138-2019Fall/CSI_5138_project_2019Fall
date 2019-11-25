@@ -26,7 +26,7 @@ class Environment(object):
             Initialization.
         """
         self.batch_size = batch_size
-        self.num_imgs = 500
+        self.num_imgs = 100
         self.x_train, self.y_train, self.x_test, self.y_test = self.MnistDataset()
         self.model = self.GetMnistPretrainedModel()
 

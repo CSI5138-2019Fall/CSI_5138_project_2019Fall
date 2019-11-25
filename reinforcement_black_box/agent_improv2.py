@@ -10,22 +10,23 @@ import pickle
 
 
 class BlackBoxAgent(object):
-    def __init__(self, image_shape, epsilon, similarity_threshold, exploration_decay):
+    def __init__(self, image_shape, epsilon, alpha, exploration_decay):
         """
         Function:
             Initialization.
         """
         self.image_shape = image_shape
         self.epsilon = epsilon
-        self.alpha = 0.5
+        self.alpha = alpha
         self.exploration_rate = 1.0
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
-        self.reward_threshold = 0.4
+        self.reward_threshold = alpha - alpha*0.5
         self.decay_threshold = 0.6
         self.decay_cmd = False
         self.image_table = {}
+        self.noise_table = {}
         self.agent_table = {}
 
     def UpdateExplorationRate(self,):
@@ -47,6 +48,17 @@ class BlackBoxAgent(object):
         self.agent_table[new_key] = {'noise': [], 
                                     'reward': [0.]}
 
+    def UpdateNoiseTable(self, new_noise):
+        """
+        Function:
+            Update tables for previous unseen noise data.
+        """
+        current_len_noiset = len(self.noise_table)
+        new_index = current_len_noiset
+        new_key = 'noise' + str(new_index)
+        self.noise_table[new_key] = new_noise
+        return new_key
+
     def StateSearching(self, input_image):
         """
         Function:
@@ -55,6 +67,15 @@ class BlackBoxAgent(object):
         image_index = self.FindIndex(input_image, self.image_table, 'img')
         image_keyname = 'img' + str(image_index)
         return image_keyname
+
+    def NoiseSearching(self, input_noise):
+        """
+        Function:
+            Search the noise inside the table and output keyname.
+        """
+        noise_index = self.FindIndex(input_noise, self.noise_table, 'noise')
+        noise_keyname = 'noise' + str(noise_index)
+        return noise_keyname
     
     def UpdateNoise(self, image_keyname):
         """
@@ -65,11 +86,22 @@ class BlackBoxAgent(object):
                                         size=self.image_shape)
         new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
 
-        while self.ExistanceInList(new_noise, self.agent_table[image_keyname]['noise']):
+        if len(self.agent_table[image_keyname]['noise']) == 0:
+            noise_list_tmp = []
+        else:
+            noise_list_tmp = [self.noise_table[x] for x in self.agent_table[image_keyname]['noise']]
+
+        while self.ExistanceInList(new_noise, noise_list_tmp):
             new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
                                     size=self.image_shape)
             new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-        self.agent_table[image_keyname]['noise'].append(new_noise)
+
+        if self.ExistInTable(new_noise, self.noise_table):
+            noise_keyname = self.NoiseSearching(new_noise)
+        else:
+            noise_keyname = self.UpdateNoiseTable(new_noise)
+        self.agent_table[image_keyname]['noise'].append(noise_keyname)
+
         if len(self.agent_table[image_keyname]['noise']) > len(self.agent_table[image_keyname]['reward']):
             self.agent_table[image_keyname]['reward'].append(0.)
         assert len(self.agent_table[image_keyname]['noise']) == len(self.agent_table[image_keyname]['reward'])
@@ -82,7 +114,8 @@ class BlackBoxAgent(object):
         """
         reward_list = self.agent_table[image_keyname]['reward']
         noise_index = np.argmax(reward_list)
-        noise = self.agent_table[image_keyname]['noise'][noise_index]
+        noise_key = self.agent_table[image_keyname]['noise'][noise_index]
+        noise = self.noise_table[noise_key]
         return noise
 
     def FindIndex(self, data, table, keywords):
@@ -164,11 +197,11 @@ class BlackBoxAgent(object):
             Update Agent table according to the reward from the environment.
         """
         image_keyname = self.StateSearching(input_image)
-        index = [np.array_equal(noise,x) for x in \
-            self.agent_table[image_keyname]['noise']].index(True)
+        noise_list_tmp = [self.noise_table[x] for x in self.agent_table[image_keyname]['noise']]
+        index = [np.array_equal(noise,x) for x in noise_list_tmp].index(True)
         if (reward >= self.agent_table[image_keyname]['reward'][index]):
             self.agent_table[image_keyname]['reward'][index] = self.alpha * reward - \
-                    (1 - self.alpha) * np.mean(self.agent_table[image_keyname]['noise'][index])
+                    (1 - self.alpha) * np.mean(noise_list_tmp[index])
 
     def SaveTables(self,):
         """
@@ -178,6 +211,9 @@ class BlackBoxAgent(object):
         print("----------- saving image table -----------")
         with open("tables/image_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_img:
             pickle.dump(self.image_table, f_img)
+        print("----------- saving noise table -----------")
+        with open("tables/noise_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_noise:
+            pickle.dump(self.noise_table, f_noise)
         print("----------- saving agent table -----------")
         with open("tables/agent_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_agent:
             pickle.dump(self.agent_table, f_agent)
@@ -190,6 +226,9 @@ class BlackBoxAgent(object):
         print("----------- loading image table -----------")
         with open("tables/image_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_img:
             self.image_table = pickle.load(f_img)
+        print("----------- loading noise table -----------")
+        with open("tables/noise_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_noise:
+            self.noise_table = pickle.load(f_noise)
         print("----------- loading noise table -----------")
         with open("tables/agent_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_agent:
             self.agent_table = pickle.load(f_agent)

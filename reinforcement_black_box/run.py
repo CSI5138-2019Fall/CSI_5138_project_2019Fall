@@ -22,20 +22,22 @@ from tqdm import tqdm
 
 from environment import Environment
 # from table import BlackBoxAgent
-from agent_improv import BlackBoxAgent
+from agent_improv2 import BlackBoxAgent
 
 
-def debug(load_tables=False, save_tables=True):
+def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
+    # reset graph
+    tf.keras.backend.clear_session()
     # hyper-parameters settings
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
-    noise_epsilon = 0.8 # max value of the images is 1.0
-    exploration_decay = 0.96
+    # noise_epsilon = 0.8 # max value of the images is 1.0
+    exploration_decay = 0.8
     exploration_decay_steps = 1000
-    similarity_threshold = 0.01
+    # alpha = 0.5
 
     env = Environment(batch_size)
-    agent = BlackBoxAgent(image_shape, noise_epsilon, similarity_threshold, exploration_decay)
+    agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay)
 
     # set tensorboard
     log_dir = "logs/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
@@ -46,23 +48,22 @@ def debug(load_tables=False, save_tables=True):
 
     acc_calculator = []
 
-    for i in tqdm(range(10000000000)):
+    i = -1
+    while agent.exploration_rate >= 1e-2:
+        i += 1
         state, state_label = env.State()
         action, noise = agent.GenerateAdvSample(state)
         reward = env.Reward(action, state_label)
         agent.UpdateTable(state, noise, reward)
 
         img_table_size = len(agent.image_table)
-        #################################################################
-        # img_table_size = agent.agent_table.shape[0]
-        # noise_table_size = agent.agent_table.shape[1]
+        noise_table_size = len(agent.noise_table)
 
         acc_calculator.append(reward)
 
         with summary_writer.as_default():
             tf.summary.scalar('img_table_size', img_table_size, step=i)
-            #################################################################
-            # tf.summary.scalar('noise_table_size', noise_table_size, step=i)
+            tf.summary.scalar('noise_table_size', noise_table_size, step=i)
 
         if (not agent.decay_cmd):
             agent.IfDecay()
@@ -73,10 +74,10 @@ def debug(load_tables=False, save_tables=True):
                 tf.summary.scalar('exploration_rate', agent.exploration_rate, step=i)
 
         if save_tables:
-            if i % 1000 == 0:
+            if i % 2000 == 0:
                 agent.SaveTables()
-        
-        if len(acc_calculator) >= 100:
+
+        if len(acc_calculator) >= 20:
             acc_calculator = np.array(acc_calculator)
             acc = np.mean(acc_calculator)
             with summary_writer.as_default():
@@ -87,4 +88,13 @@ def debug(load_tables=False, save_tables=True):
 
 
 if __name__ == "__main__":
-    debug()
+    alphas_tmp = [0.3, 0.2, 0.1]
+    for alpha in alphas_tmp:
+        epsilon = 0.8
+        debug(epsilon, alpha)
+    epsilons = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+    alphas = [0.5, 0.3, 0.2, 0.1]
+    for ind in tqdm(range(len(epsilons))):
+        for alpha in alphas:
+            epsilon = epsilons[ind]
+            debug(epsilon, alpha)
