@@ -32,8 +32,8 @@ class BlackBoxAgent(object):
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
-        self.reward_threshold = 0.45
-        self.decay_threshold = 0.6
+        self.reward_threshold = 0.5
+        self.decay_threshold = 0.7
         self.decay_cmd = False
         self.image_table = {}
         self.agent_table = {}
@@ -154,6 +154,19 @@ class BlackBoxAgent(object):
 
         adv_sample = input_image + noise
         return adv_sample, noise
+
+    def VerifyAdvSample(self, input_image):
+        """
+        Function:
+            Verify the agent we got by generating the samples.
+        """
+        if not self.ExistInTable(input_image, self.image_table):
+            print("----- The current image has never been seen before. -----")
+            noise = None
+        else:
+            image_keyname = self.StateSearching(input_image)
+            noise = self.SelectNoise(image_keyname)
+        return noise
 
     def UpdateTable(self, input_image, noise, reward):
         """

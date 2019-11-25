@@ -45,6 +45,7 @@ class Environment(object):
         x_train /= 255.
         x_test /= 255.
         test_index = np.arange(len(x_test))
+        np.random.seed(11011)
         np.random.shuffle(test_index)
         x_test = x_test[test_index]
         x_test = x_test[:self.num_imgs]
