@@ -28,9 +28,9 @@ if __name__ == "__main__":
 
     agent.LoadTables()
 
-    fig = plt.figure()
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
+    fig = plt.figure(figsize=(20,4))
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212)
 
     count = 0
     originals = []
