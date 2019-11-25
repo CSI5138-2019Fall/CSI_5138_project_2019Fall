@@ -28,22 +28,26 @@ if __name__ == "__main__":
 
     agent.LoadTables()
 
-    plt.ion()
     fig = plt.figure()
     ax1 = fig.add_subplot(121)
     ax2 = fig.add_subplot(122)
 
-
+    count = 0
+    originals = []
+    adv_samples = []
     for i in range(100):
         state, state_label = env.State()
         adv_noise = agent.VerifyAdvSample(state)
         if adv_noise is not None:
             adv_sample = state + adv_noise
-            ax1.clear()
-            ax1.imshow(np.squeeze(state), cmap='gray')
-            ax1.axis('off')
-            ax2.clear()
-            ax2.imshow(np.squeeze(adv_sample), cmap='gray')
-            ax2.axis('off')
-            fig.canvas.draw()
-            plt.pause(5)
+            originals.append(np.squeeze(state))
+            adv_samples.append(np.squeeze(adv_sample))
+    
+    originals = np.concatenate(originals, axis=1)
+    adv_samples = np.concatenate(adv_samples, axis=1)
+
+    ax1.imshow(np.squeeze(originals), cmap='gray')
+    ax1.axis('off')
+    ax2.imshow(np.squeeze(adv_samples), cmap='gray')
+    ax2.axis('off')
+    plt.show()

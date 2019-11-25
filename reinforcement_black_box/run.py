@@ -30,7 +30,7 @@ def debug(load_tables=False, save_tables=True):
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
     noise_epsilon = 0.8 # max value of the images is 1.0
-    exploration_decay = 0.95
+    exploration_decay = 0.96
     exploration_decay_steps = 1000
     similarity_threshold = 0.01
 
@@ -38,7 +38,7 @@ def debug(load_tables=False, save_tables=True):
     agent = BlackBoxAgent(image_shape, noise_epsilon, similarity_threshold, exploration_decay)
 
     # set tensorboard
-    log_dir = "logs"
+    log_dir = "logs/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha)
     summary_writer = tf.summary.create_file_writer(log_dir)
 
     if load_tables:
