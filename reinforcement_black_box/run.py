@@ -9,32 +9,33 @@ warnings.filterwarnings('ignore')
 import tensorflow as tf
 import tensorflow.keras as keras
 # tf.compat.v1.disable_eager_execution()
-##### gpu memory management #####
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
+# ##### gpu memory management #####
+# physical_devices = tf.config.experimental.list_physical_devices('GPU')
+# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+# tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 from tensorflow.keras.models import load_model
 
 import numpy as np
 import pickle
 from tqdm import tqdm
-import matplotlib
-matplotlib.use('tkagg')
-import matplotlib.pyplot as plt
+# import matplotlib
+# matplotlib.use('tkagg')
+# import matplotlib.pyplot as plt
 
 from environment import Environment
-from table import BlackBoxAgent
+# from table import BlackBoxAgent
+from agent_improv import BlackBoxAgent
 
 
 def debug(load_tables=False, save_tables=True):
     # hyper-parameters settings
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
-    noise_epsilon = 0.1 # max value of the images is 1.0
-    similarity_threshold = 0.01
+    noise_epsilon = 0.8 # max value of the images is 1.0
     exploration_decay = 0.8
-    exploration_decay_steps = 2000
+    exploration_decay_steps = 500
+    similarity_threshold = 0.01
 
     env = Environment(batch_size)
     agent = BlackBoxAgent(image_shape, noise_epsilon, similarity_threshold, exploration_decay)
@@ -54,16 +55,19 @@ def debug(load_tables=False, save_tables=True):
         reward = env.Reward(action, state_label)
         agent.UpdateTable(state, noise, reward)
 
-        img_table_size = agent.agent_table.shape[0]
-        noise_table_size = agent.agent_table.shape[1]
+        img_table_size = len(agent.image_table)
+        #################################################################
+        # img_table_size = agent.agent_table.shape[0]
+        # noise_table_size = agent.agent_table.shape[1]
 
         acc_calculator.append(reward)
 
         with summary_writer.as_default():
             tf.summary.scalar('img_table_size', img_table_size, step=i)
-            tf.summary.scalar('noise_table_size', noise_table_size, step=i)
+            #################################################################
+            # tf.summary.scalar('noise_table_size', noise_table_size, step=i)
 
-        if not agent.decay_cmd:
+        if (not agent.decay_cmd):
             agent.IfDecay()
 
         if agent.decay_cmd and ((i+1) % exploration_decay_steps == 0):

@@ -10,9 +10,9 @@ import tensorflow as tf
 import tensorflow.keras as keras
 # tf.compat.v1.disable_eager_execution()
 ##### gpu memory management #####
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
+# physical_devices = tf.config.experimental.list_physical_devices('GPU')
+# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+# tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 from tensorflow.keras.models import load_model
 
@@ -26,6 +26,7 @@ class Environment(object):
             Initialization.
         """
         self.batch_size = batch_size
+        self.num_imgs = 100
         self.x_train, self.y_train, self.x_test, self.y_test = self.MnistDataset()
         self.model = self.GetMnistPretrainedModel()
 
@@ -46,9 +47,9 @@ class Environment(object):
         test_index = np.arange(len(x_test))
         np.random.shuffle(test_index)
         x_test = x_test[test_index]
-        x_test = x_test[:1000]
+        x_test = x_test[:self.num_imgs]
         y_test = y_test[test_index]
-        y_test = y_test[:1000]
+        y_test = y_test[:self.num_imgs]
         return x_train, y_train, x_test, y_test
 
     def GetMnistPretrainedModel(self,):
