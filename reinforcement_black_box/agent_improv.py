@@ -17,11 +17,12 @@ class BlackBoxAgent(object):
         """
         self.image_shape = image_shape
         self.epsilon = epsilon
+        self.alpha = 0.8
         self.exploration_rate = 1.0
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
-        self.reward_threshold = 0.5
+        self.reward_threshold = 0.3
         self.decay_threshold = 0.7
         self.decay_cmd = False
         self.image_table = {}
@@ -166,7 +167,8 @@ class BlackBoxAgent(object):
         index = [np.array_equal(noise,x) for x in \
             self.agent_table[image_keyname]['noise']].index(True)
         if (reward >= self.agent_table[image_keyname]['reward'][index]):
-            self.agent_table[image_keyname]['reward'][index] = reward
+            self.agent_table[image_keyname]['reward'][index] = self.alpha * reward - \
+                    (1 - self.alpha) * np.mean(self.agent_table[image_keyname]['noise'][index])
 
     def SaveTables(self,):
         """
