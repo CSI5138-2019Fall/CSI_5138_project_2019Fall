@@ -32,7 +32,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
     # noise_epsilon = 0.8 # max value of the images is 1.0
-    exploration_decay = 0.6
+    exploration_decay = 0.8
     exploration_decay_steps = 1000
     # alpha = 0.5
 
@@ -88,9 +88,15 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
 
 
 if __name__ == "__main__":
-    epsilons = [0.5, 0.4, 0.3, 0.2, 0.1]
-    alphas = [0.5, 0.3, 0.2, 0.1]
+    epsilons = [0.6]
+    alphas = [0.2, 0.1]
     for ind in tqdm(range(len(epsilons))):
         for alpha in alphas:
             epsilon = epsilons[ind]
             debug(epsilon, alpha)
+    # epsilons = [0.5, 0.4, 0.3, 0.2, 0.1]
+    # alphas = [0.5, 0.3, 0.2, 0.1]
+    # for ind in tqdm(range(len(epsilons))):
+    #     for alpha in alphas:
+    #         epsilon = epsilons[ind]
+    #         debug(epsilon, alpha)
