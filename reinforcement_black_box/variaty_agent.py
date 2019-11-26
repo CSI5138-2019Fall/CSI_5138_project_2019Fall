@@ -27,6 +27,21 @@ class varietyAgent(object):
         ret = reward >= self.gamma
         return ret
 
+    def SimilarToExistance(self, adv_sample):
+        """
+        Function:
+            Find out if the current adversarial sample is similar
+        to any of the adv samples inside the table.
+        """
+        exits = False
+        for i in range(self.adv_sample_table.shape[0]):
+            if np.max(np.abs(self.adv_sample_table[i] - adv_sample)) > self.delta:
+                exits = True
+                break
+            else:
+                exist = False
+        return exits
+
     def UpdateAndReset(self, image, noise, reward):
         """
         Function:
@@ -35,6 +50,18 @@ class varietyAgent(object):
         """
         if self.VerifyReward(reward):
             adv_sample = image + noise
+            adv_sample = np.where(adv_sample < 0, 0., adv_sample)
+            if self.adv_sample_table is None:
+                self.adv_sample_table = adv_sample
+            else:
+                if not self.SimilarToExistance(adv_sample):
+                    self.adv_sample_table = np.concatenate([self.adv_sample_table, adv_sample], axis = 0)
+                    reward = 0.
+                else:
+                    reward = 0.
+        else:
+            reward = reward
+        return reward
 
 
 
