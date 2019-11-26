@@ -32,15 +32,15 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
     # noise_epsilon = 0.8 # max value of the images is 1.0
-    exploration_decay = 0.8
-    exploration_decay_steps = 1000
+    exploration_decay = 0.7
+    exploration_decay_steps = 800
     # alpha = 0.5
 
     env = Environment(batch_size)
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay)
 
     # set tensorboard
-    log_dir = "logs2/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
+    log_dir = "logs_uniform/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
     summary_writer = tf.summary.create_file_writer(log_dir)
 
     if load_tables:
@@ -83,14 +83,17 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
             with summary_writer.as_default():
                 tf.summary.scalar('average_confidence_loss', acc, step=i)
             acc_calculator = []
+        
+        if i >= 25000:
+            break
         else:
             continue
 
 
 if __name__ == "__main__":
-    epsilons = [0.8, 0.7, 0.6, 0.5]
-    alphas = [0.5, 0.3, 0.2, 0.1]
+    epsilons = [0.8, 0.7, 1.0, 0.6, 0.5, 0.9]
+    alphas = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
     for ind in tqdm(range(len(epsilons))):
+        epsilon = epsilons[ind]
         for alpha in alphas:
-            epsilon = epsilons[ind]
             debug(epsilon, alpha)

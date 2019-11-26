@@ -22,7 +22,7 @@ class BlackBoxAgent(object):
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
-        self.reward_threshold = alpha - alpha*0.6
+        self.reward_threshold = alpha - alpha*0.8
         self.decay_threshold = 0.6
         self.decay_cmd = False
         self.image_table = {}
@@ -82,7 +82,9 @@ class BlackBoxAgent(object):
         Function:
             Update tables for new noise.
         """
-        new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
+        # new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
+        #                                 size=self.image_shape)
+        new_noise = np.random.uniform(low=0., high=self.epsilon, 
                                         size=self.image_shape)
         new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
 
@@ -92,7 +94,9 @@ class BlackBoxAgent(object):
             noise_list_tmp = [self.noise_table[x] for x in self.agent_table[image_keyname]['noise']]
 
         while self.ExistanceInList(new_noise, noise_list_tmp):
-            new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
+            # new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
+            #                         size=self.image_shape)
+            new_noise = np.random.uniform(low=0., high=self.epsilon, 
                                     size=self.image_shape)
             new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
 
@@ -176,7 +180,7 @@ class BlackBoxAgent(object):
             noise = self.SelectNoise(image_keyname)
 
         adv_sample = input_image + noise
-        adv_sample = np.where(adv_sample < 0, 0., adv_sample)
+        # adv_sample = np.where(adv_sample < 0., 0., adv_sample)
         return adv_sample, noise
 
     def VerifyAdvSample(self, input_image):
