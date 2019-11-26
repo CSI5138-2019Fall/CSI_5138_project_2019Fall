@@ -32,7 +32,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
     # noise_epsilon = 0.8 # max value of the images is 1.0
-    exploration_decay = 0.8
+    exploration_decay = 0.6
     exploration_decay_steps = 1000
     # alpha = 0.5
 
