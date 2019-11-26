@@ -88,11 +88,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
 
 
 if __name__ == "__main__":
-    alphas_tmp = [0.3, 0.2, 0.1]
-    for alpha in alphas_tmp:
-        epsilon = 0.8
-        debug(epsilon, alpha)
-    epsilons = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+    epsilons = [0.5, 0.4, 0.3, 0.2, 0.1]
     alphas = [0.5, 0.3, 0.2, 0.1]
     for ind in tqdm(range(len(epsilons))):
         for alpha in alphas:
