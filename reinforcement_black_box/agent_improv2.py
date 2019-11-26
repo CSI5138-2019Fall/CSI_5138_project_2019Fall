@@ -176,6 +176,7 @@ class BlackBoxAgent(object):
             noise = self.SelectNoise(image_keyname)
 
         adv_sample = input_image + noise
+        adv_sample = np.where(adv_sample < 0, 0., adv_sample)
         return adv_sample, noise
 
     def VerifyAdvSample(self, input_image):
@@ -201,7 +202,7 @@ class BlackBoxAgent(object):
         index = [np.array_equal(noise,x) for x in noise_list_tmp].index(True)
         if (reward >= self.agent_table[image_keyname]['reward'][index]):
             self.agent_table[image_keyname]['reward'][index] = self.alpha * reward - \
-                    (1 - self.alpha) * np.mean(noise_list_tmp[index])
+                    (1 - self.alpha) * np.mean(np.abs(noise_list_tmp[index]))
 
     def SaveTables(self,):
         """

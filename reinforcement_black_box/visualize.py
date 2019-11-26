@@ -38,6 +38,7 @@ if __name__ == "__main__":
         adv_noise = agent.VerifyAdvSample(state)
         if adv_noise is not None:
             adv_sample = state + adv_noise
+            adv_sample = np.where(adv_sample < 0, 0., adv_sample)
             originals.append(np.squeeze(state))
             adv_samples.append(np.squeeze(adv_sample))
             count += 1
