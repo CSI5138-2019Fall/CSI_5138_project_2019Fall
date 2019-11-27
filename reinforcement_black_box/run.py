@@ -40,7 +40,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay)
 
     # set tensorboard
-    log_dir = "logs_gaussian/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
+    log_dir = "logs_uniform/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
     summary_writer = tf.summary.create_file_writer(log_dir)
 
     if load_tables:
