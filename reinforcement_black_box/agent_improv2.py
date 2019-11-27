@@ -84,14 +84,14 @@ class BlackBoxAgent(object):
         """
         # new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
         #                                 size=self.image_shape)
-        new_noise = np.random.uniform(low=0., high=self.epsilon, 
-                                        size=self.image_shape)
-        new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-        # new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
+        # new_noise = np.random.uniform(low=0., high=self.epsilon, 
         #                                 size=self.image_shape)
-        # new_noise = np.abs(new_noise)
         # new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-        # new_noise = np.where(new_noise > 1., 1., new_noise)
+        new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
+                                        size=self.image_shape)
+        new_noise = np.abs(new_noise)
+        new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+        new_noise = np.where(new_noise > 1., 1., new_noise)
 
         if len(self.agent_table[image_keyname]['noise']) == 0:
             noise_list_tmp = []
@@ -101,14 +101,14 @@ class BlackBoxAgent(object):
         while self.ExistanceInList(new_noise, noise_list_tmp):
             # new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
             #                         size=self.image_shape)
-            new_noise = np.random.uniform(low=0., high=self.epsilon, 
-                                    size=self.image_shape)
-            new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-            # new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
+            # new_noise = np.random.uniform(low=0., high=self.epsilon, 
             #                         size=self.image_shape)
-            # new_noise = np.abs(new_noise)
             # new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-            # new_noise = np.where(new_noise > 1., 1., new_noise)
+            new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
+                                    size=self.image_shape)
+            new_noise = np.abs(new_noise)
+            new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+            new_noise = np.where(new_noise > 1., 1., new_noise)
 
         if self.ExistInTable(new_noise, self.noise_table):
             noise_keyname = self.NoiseSearching(new_noise)

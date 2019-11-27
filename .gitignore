@@ -3,3 +3,5 @@ reinforcement_black_box/tables
 reinforcement_black_box/logs2
 reinforcement_black_box/logs_uniform
 reinforcement_black_box/logs_gaussian
+reinforcement_black_box/tensorboard_csv
+reinforcement_black_box/plots
