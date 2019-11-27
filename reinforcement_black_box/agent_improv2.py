@@ -22,7 +22,7 @@ class BlackBoxAgent(object):
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
-        self.reward_threshold = alpha - alpha*0.8
+        self.reward_threshold = 0.1 * alpha + 0.1 * self.epsilon
         self.decay_threshold = 0.6
         self.decay_cmd = False
         self.image_table = {}
@@ -87,6 +87,10 @@ class BlackBoxAgent(object):
         new_noise = np.random.uniform(low=0., high=self.epsilon, 
                                         size=self.image_shape)
         new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+        # new_noise = np.random.normal(loc=0., scale=self.epsilon, 
+        #                                 size=self.image_shape)
+        # new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+        # new_noise = np.where(new_noise > 1., 1., new_noise)
 
         if len(self.agent_table[image_keyname]['noise']) == 0:
             noise_list_tmp = []
@@ -99,6 +103,10 @@ class BlackBoxAgent(object):
             new_noise = np.random.uniform(low=0., high=self.epsilon, 
                                     size=self.image_shape)
             new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+            # new_noise = np.random.normal(loc=0., scale=self.epsilon, 
+            #                         size=self.image_shape)
+            # new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+            # new_noise = np.where(new_noise > 1., 1., new_noise)
 
         if self.ExistInTable(new_noise, self.noise_table):
             noise_keyname = self.NoiseSearching(new_noise)
