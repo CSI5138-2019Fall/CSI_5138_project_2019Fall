@@ -40,7 +40,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay)
 
     # set tensorboard
-    log_dir = "logs_uniform/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
+    log_dir = "logs_gaussian/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
     summary_writer = tf.summary.create_file_writer(log_dir)
 
     if load_tables:
@@ -91,7 +91,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
 
 
 if __name__ == "__main__":
-    epsilons = [1.0, 0.9]
+    epsilons = [1.0, 0.9, 0.8, 0.7]
     alphas = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
     for ind in tqdm(range(len(epsilons))):
         epsilon = epsilons[ind]
