@@ -68,10 +68,13 @@ def debug(load_tables=False, save_tables=True):
         acc_calculator.append(reward)
         size_of_secondagent = secondAgent.SizeOfTable()
 
-        if secondAgent.Logging(env.num_imgs):
-            with summary_writer.as_default():
-                tf.summary.histogram('sec_agent_tablesize', size_of_secondagent, step=i)
-                tf.summary.scalar('second_agent_size', np.sum(size_of_secondagent), step=i)
+        with summary_writer.as_default():
+            tf.summary.scalar('img_table_size', img_table_size, step=i)
+
+        # if secondAgent.Logging(10):
+        with summary_writer.as_default():
+            tf.summary.scalar('second_agent_size', np.sum(size_of_secondagent), step=i)
+            # tf.summary.histogram('sec_agent_tablesize', size_of_secondagent, step=i)
 
         if (not agent.decay_cmd):
             agent.IfDecay()

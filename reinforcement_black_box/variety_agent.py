@@ -136,6 +136,7 @@ class varietyAgent(object):
             Whether to start logging the tensorboard.
         """
         logging = False
+        # print(len(self.original_img_table.keys()))
         if len(self.original_img_table.keys()) == num:
             logging = True
         return logging
