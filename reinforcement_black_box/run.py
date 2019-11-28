@@ -71,7 +71,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
         if agent.decay_cmd and ((i+1) % exploration_decay_steps == 0):
             agent.UpdateExplorationRate()
             with summary_writer.as_default():
-                tf.summary.scalar('exploration_rate', agent.exploration_r$
+                tf.summary.scalar('exploration_rate', agent.exploration_rate, step=i)
 
         if save_tables:
             if i % 2000 == 0:
