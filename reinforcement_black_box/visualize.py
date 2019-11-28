@@ -162,7 +162,7 @@ if __name__ == "__main__":
     noise_type: either 'gaussian' or 'uniform'
     """
     epsilons = [1.0, 0.8, 0.6, 0.4]
-    alphas = [1.0, 0.8, 0.6, 0.4]
+    alphas = [1.0, 0.8, 0.6]
     noise_type = 'gaussian'
     
     Plotting(epsilons, alphas, noise_type)

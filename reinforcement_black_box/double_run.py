@@ -10,9 +10,9 @@ import tensorflow as tf
 import tensorflow.keras as keras
 # tf.compat.v1.disable_eager_execution()
 # ##### gpu memory management #####
-# physical_devices = tf.config.experimental.list_physical_devices('GPU')
-# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-# tf.config.experimental.set_memory_growth(physical_devices[0], True)
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 from tensorflow.keras.models import load_model
 
@@ -31,7 +31,7 @@ def debug(load_tables=False, save_tables=True):
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
     noise_epsilon = 1.0 # max value of the images is 1.0
-    exploration_decay = 0.8
+    exploration_decay = 0.95
     exploration_decay_steps = 1000
     alpha = 0.5
     noise_type = 'gaussian'
@@ -74,7 +74,7 @@ def debug(load_tables=False, save_tables=True):
         # if secondAgent.Logging(10):
         with summary_writer.as_default():
             tf.summary.scalar('second_agent_size', np.sum(size_of_secondagent), step=i)
-            # tf.summary.histogram('sec_agent_tablesize', size_of_secondagent, step=i)
+            tf.summary.scalar('secag_imgt_size', len(secondAgent.original_img_table.keys()), step=i)
 
         if (not agent.decay_cmd):
             agent.IfDecay()
@@ -96,7 +96,7 @@ def debug(load_tables=False, save_tables=True):
                 tf.summary.scalar('average_confidence_loss', acc, step=i)
             acc_calculator = []
 
-        if i >= 30000:
+        if i >= 80000:
             break
         else:
             continue

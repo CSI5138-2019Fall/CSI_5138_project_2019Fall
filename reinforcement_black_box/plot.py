@@ -57,13 +57,13 @@ def PlotWithSparse(x, y, ax, color, line_label):
     # set labels for legend
     line.set_label(line_label)
 
-def GetOnePlot(epsilon, alpha, threshold):
+def GetOnePlot(epsilon, alpha, threshold, noise_type):
     """
     Function:
         Get the tensorboard file with the specific requirements.
     """
     # get the file name
-    file_pref = "tensorboard_csv/run-nmax_" + str(epsilon) + "_alpha_" + \
+    file_pref = "tensorboard_csv_" + noise_type + "/run-nmax_" + str(epsilon) + "_alpha_" + \
                 str(alpha) + "_threshold_" + str(threshold) + "-tag-"
 
     file_descrip = "average_confidence_loss.csv"
@@ -72,7 +72,7 @@ def GetOnePlot(epsilon, alpha, threshold):
     x, y = ReadCsv(file_name)
     return x, y
 
-def PlotAll(mode, xlim, ylim):
+def PlotAll(mode, noise_type, xlim, ylim):
     """
     Function:
         Plot all data for comparison.
@@ -84,8 +84,8 @@ def PlotAll(mode, xlim, ylim):
     exploration_decay = 0.8
     exploration_decay_steps = 800
     # alpha = 0.5
-    epsilons = [1.0, 0.9, 0.8]
-    alphas = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
+    epsilons = [1.0, 0.8, 0.6, 0.4]
+    alphas = [1.0, 0.8, 0.6]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -94,19 +94,19 @@ def PlotAll(mode, xlim, ylim):
     i = 0
     if mode == "eps":
         for epsilon in epsilons:
-            alpha = 0.8
+            alpha = 1.0
             agent = BlackBoxAgent(image_shape, epsilon, alpha, exploration_decay)
             threshold = agent.reward_threshold
-            x, y = GetOnePlot(epsilon, alpha, threshold)
+            x, y = GetOnePlot(epsilon, alpha, threshold, noise_type)
             PlotWithSparse(x, y, ax, colors[i], "epsilon_" + str(np.round(epsilon,2)) + \
                                                 "_alpha_" + str(np.round(alpha,2)))
             i += 1
     elif mode == "alpha":
         for alpha in alphas:
-            epsilon = 0.8
+            epsilon = 1.0
             agent = BlackBoxAgent(image_shape, epsilon, alpha, exploration_decay)
             threshold = agent.reward_threshold
-            x, y = GetOnePlot(epsilon, alpha, threshold)
+            x, y = GetOnePlot(epsilon, alpha, threshold, noise_type)
             PlotWithSparse(x, y, ax, colors[i], "epsilon_" + str(np.round(epsilon,2)) + \
                                                 "_alpha_" + str(np.round(alpha,2)))
             i += 1
@@ -125,7 +125,7 @@ def PlotAll(mode, xlim, ylim):
     ax.set_ylabel("accuracy loss")
     ax.legend()
     ax.grid()
-    plt.savefig("plots/csv" + mode + ".png")
+    plt.savefig("plots_" + noise_type + "/compare_" + mode + ".png")
     plt.show()
 
 if __name__ == "__main__":
@@ -134,4 +134,5 @@ if __name__ == "__main__":
     """
 
     mode_name = "alpha"
-    PlotAll(mode_name, [0, 20000], [0, 1])
+    noise_type = "gaussian"
+    PlotAll(mode_name, noise_type, [0, 20000], [0, 1])
