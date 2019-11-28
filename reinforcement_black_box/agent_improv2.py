@@ -10,11 +10,12 @@ import pickle
 
 
 class BlackBoxAgent(object):
-    def __init__(self, image_shape, epsilon, alpha, exploration_decay):
+    def __init__(self, image_shape, epsilon, alpha, exploration_decay, noise_type):
         """
         Function:
             Initialization.
         """
+        self.noise_type = noise_type
         self.image_shape = image_shape
         self.epsilon = epsilon
         self.alpha = alpha
@@ -22,8 +23,8 @@ class BlackBoxAgent(object):
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
-        # self.reward_threshold = 0.5*self.epsilon - (1-self.alpha)*0.5
-        self.reward_threshold = -100
+        self.reward_threshold = 0.3*self.epsilon
+        # self.reward_threshold = -100
         self.decay_threshold = 0.6
         self.decay_cmd = False
         self.image_table = {}
@@ -85,13 +86,17 @@ class BlackBoxAgent(object):
         """
         # new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
         #                                 size=self.image_shape)
-        # new_noise = np.random.uniform(low=0., high=self.epsilon, 
-        #                                 size=self.image_shape)
-        # new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-        new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
-                                        size=self.image_shape)
-        new_noise = np.abs(new_noise)
-        new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+        if self.noise_type == 'uniform':
+            new_noise = np.random.uniform(low=0., high=self.epsilon, 
+                                            size=self.image_shape)
+            new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+        elif self.noise_type == 'gaussian':
+            new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.3, 
+                                            size=self.image_shape)
+            new_noise = np.abs(new_noise)
+            new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+        else:
+            raise ValueError("---- Wrong input noise type. ----")
 
         if len(self.agent_table[image_keyname]['noise']) == 0:
             noise_list_tmp = []
@@ -101,13 +106,15 @@ class BlackBoxAgent(object):
         while self.ExistanceInList(new_noise, noise_list_tmp):
             # new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
             #                         size=self.image_shape)
-            # new_noise = np.random.uniform(low=0., high=self.epsilon, 
-            #                         size=self.image_shape)
-            # new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-            new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
-                                    size=self.image_shape)
-            new_noise = np.abs(new_noise)
-            new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+            if self.noise_type == 'uniform':
+                new_noise = np.random.uniform(low=0., high=self.epsilon, 
+                                        size=self.image_shape)
+                new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+            elif self.noise_type == 'gaussian':
+                new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.3, 
+                                        size=self.image_shape)
+                new_noise = np.abs(new_noise)
+                new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
 
         if self.ExistInTable(new_noise, self.noise_table):
             noise_keyname = self.NoiseSearching(new_noise)
@@ -214,8 +221,10 @@ class BlackBoxAgent(object):
         noise_list_tmp = [self.noise_table[x] for x in self.agent_table[image_keyname]['noise']]
         index = [np.array_equal(noise,x) for x in noise_list_tmp].index(True)
         if (reward >= self.agent_table[image_keyname]['reward'][index]):
+            actual_noise = np.clip(input_image+noise, 0., 1.) - input_image
+            noise_mean = np.mean(np.abs(actual_noise))
             self.agent_table[image_keyname]['reward'][index] = self.alpha * reward - \
-                    (1 - self.alpha) * np.mean(np.abs(noise_list_tmp[index]))
+                    (1 - self.alpha) * noise_mean
 
     def SaveTables(self,):
         """

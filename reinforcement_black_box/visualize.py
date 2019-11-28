@@ -65,7 +65,7 @@ def GetResults(agent, env, image_set, label_set, noise_epsilon, alpha):
                 + '_alpha_' + str(np.round(alpha, 2)) + '.png')
     # plt.show()
 
-def ResultsOnCurrentPara(noise_epsilon, alpha, env, image_set, label_set):
+def ResultsOnCurrentPara(noise_epsilon, alpha, env, image_set, label_set, noise_type):
     """
     Function:
         Get the visualized results on current parameters.
@@ -78,7 +78,7 @@ def ResultsOnCurrentPara(noise_epsilon, alpha, env, image_set, label_set):
     exploration_decay_steps = 800
     # alpha = 0.5
 
-    agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay)
+    agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay, noise_type)
     agent.LoadTables()
 
     GetResults(agent, env, image_set, label_set, noise_epsilon, alpha)
@@ -99,7 +99,7 @@ def OriginalPlot(image_set):
         axes[0, i].axis('off')
     plt.savefig('plots/original.png')
 
-def Plotting():
+def Plotting(epsilons, alphas, noise_type):
     """
     Function:
         Plot all adv samples.
@@ -116,21 +116,16 @@ def Plotting():
 
     OriginalPlot(x_select)
 
-    epsilons = [1.0, 0.8, 0.6, 0.4, 0.2]
-    alphas = [1.0, 0.5, 0.1, 0.05, 0.01]
     for ind in tqdm(range(len(epsilons))):
         epsilon = epsilons[ind]
         for alpha in alphas:
-            ResultsOnCurrentPara(epsilon, alpha, env, x_select, y_select)
+            ResultsOnCurrentPara(epsilon, alpha, env, x_select, y_select, noise_type)
 
-def Comparing(mode):
+def Comparing(mode, epsilons, alphas):
     """
     Function:
         Read the saved results and compare the influence of different parameters.
     """
-    epsilons = [1.0, 0.8, 0.6, 0.4, 0.2]
-    alphas = [1.0, 0.5, 0.1, 0.05, 0.01]
-
     all_imgs = []
     original = imageio.imread('plots/original.png')
     all_imgs.append(original)
@@ -163,8 +158,13 @@ def Comparing(mode):
 if __name__ == "__main__":
     """
     mode: either "eps" or "alpha"
+    noise_type: either 'gaussian' or 'uniform'
     """
-    Plotting()
+    epsilons = [1.0, 0.8, 0.6, 0.4, 0.2]
+    alphas = [1.0, 0.5, 0.1, 0.05, 0.01]
+    noise_type = 'gaussian'
+    
+    Plotting(epsilons, alphas, noise_type)
 
     # mode_name = "alpha"
-    # Comparing(mode_name)
+    # Comparing(mode_name, epsilons, alphas)
