@@ -164,7 +164,7 @@ if __name__ == "__main__":
     """
     mode: either "eps" or "alpha"
     """
-    # Plotting()
+    Plotting()
 
-    mode_name = "alpha"
-    Comparing(mode_name)
+    # mode_name = "alpha"
+    # Comparing(mode_name)
