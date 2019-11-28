@@ -87,7 +87,7 @@ class BlackBoxAgent(object):
         # new_noise = np.random.uniform(low=0., high=self.epsilon, 
         #                                 size=self.image_shape)
         # new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-        new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
+        new_noise = np.random.normal(loc=0., scale=self.epsilon, 
                                         size=self.image_shape)
         new_noise = np.abs(new_noise)
         new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
@@ -103,7 +103,7 @@ class BlackBoxAgent(object):
             # new_noise = np.random.uniform(low=0., high=self.epsilon, 
             #                         size=self.image_shape)
             # new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-            new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
+            new_noise = np.random.normal(loc=0., scale=self.epsilon, 
                                     size=self.image_shape)
             new_noise = np.abs(new_noise)
             new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)

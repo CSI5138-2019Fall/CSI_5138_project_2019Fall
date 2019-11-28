@@ -40,7 +40,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay)
 
     # set tensorboard
-    log_dir = "logs_uniform/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
+    log_dir = "logs_gaussian/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
     summary_writer = tf.summary.create_file_writer(log_dir)
 
     if load_tables:
@@ -68,11 +68,12 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
         if (not agent.decay_cmd):
             agent.IfDecay()
 
-        if agent.decay_cmd and ((i+1) % exploration_decay_stepe=self.epsilon * 0.5, 
-                                    size=self.image_shape)
-            new_noise = np.abs(new_noise)
-            new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-            new_noise = np.where(new_noise > 1., 1., new_noise)
+        if agent.decay_cmd and ((i+1) % exploration_decay_steps == 0):
+            agent.UpdateExplorationRate()
+            with summary_writer.as_default():
+                tf.summary.scalar('exploration_rate', agent.exploration_r$
+
+        if save_tables:
             if i % 2000 == 0:
                 agent.SaveTables()
 
@@ -82,7 +83,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
             with summary_writer.as_default():
                 tf.summary.scalar('average_confidence_loss', acc, step=i)
             acc_calculator = []
-        
+
         if i >= 20000:
             break
         else:
