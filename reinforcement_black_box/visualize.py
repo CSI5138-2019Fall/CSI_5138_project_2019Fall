@@ -117,7 +117,7 @@ def Plotting():
     OriginalPlot(x_select)
 
     epsilons = [1.0, 0.8, 0.6, 0.4, 0.2]
-    alphas = [1.0, 0.8, 0.6, 0.4, 0.2]
+    alphas = [1.0, 0.5, 0.1, 0.05, 0.01]
     for ind in tqdm(range(len(epsilons))):
         epsilon = epsilons[ind]
         for alpha in alphas:
@@ -129,7 +129,7 @@ def Comparing(mode):
         Read the saved results and compare the influence of different parameters.
     """
     epsilons = [1.0, 0.8, 0.6, 0.4, 0.2]
-    alphas = [1.0, 0.8, 0.6, 0.4, 0.2]
+    alphas = [1.0, 0.5, 0.1, 0.05, 0.01]
 
     all_imgs = []
     original = imageio.imread('plots/original.png')
