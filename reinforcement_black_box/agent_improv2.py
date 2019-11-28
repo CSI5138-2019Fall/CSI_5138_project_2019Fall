@@ -88,8 +88,9 @@ class BlackBoxAgent(object):
         # new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
         #                                 size=self.image_shape)
         if self.noise_type == 'uniform':
-            new_noise = np.random.uniform(low=0., high=self.epsilon, 
-                                            size=self.image_shape)
+            new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
+                                        size=self.image_shape)
+            new_noise = np.clip(new_noise, 0., 1.)
             new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
         elif self.noise_type == 'gaussian':
             new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
@@ -108,8 +109,9 @@ class BlackBoxAgent(object):
             # new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
             #                         size=self.image_shape)
             if self.noise_type == 'uniform':
-                new_noise = np.random.uniform(low=0., high=self.epsilon, 
+                new_noise = np.random.uniform(low=-self.epsilon, high=self.epsilon, 
                                         size=self.image_shape)
+                new_noise = np.clip(new_noise, 0., 1.)
                 new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
             elif self.noise_type == 'gaussian':
                 new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
