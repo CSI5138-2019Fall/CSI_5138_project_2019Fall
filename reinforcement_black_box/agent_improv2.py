@@ -23,7 +23,7 @@ class BlackBoxAgent(object):
         self.exploration_decay = exploration_decay
         self.eps_dcimal_places = str(self.epsilon)[::-1].find('.')
         self.precision = 2
-        self.reward_threshold = 0.3*self.epsilon
+        self.reward_threshold = 0.5*(self.epsilon**2)
         # self.reward_threshold = -100
         self.decay_threshold = 0.6
         self.decay_cmd = False
@@ -91,9 +91,9 @@ class BlackBoxAgent(object):
                                             size=self.image_shape)
             new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
         elif self.noise_type == 'gaussian':
-            new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.3, 
+            new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
                                             size=self.image_shape)
-            new_noise = np.abs(new_noise)
+            new_noise = np.clip(new_noise, 0., 1.)
             new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
         else:
             raise ValueError("---- Wrong input noise type. ----")
@@ -111,9 +111,9 @@ class BlackBoxAgent(object):
                                         size=self.image_shape)
                 new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
             elif self.noise_type == 'gaussian':
-                new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.3, 
+                new_noise = np.random.normal(loc=0., scale=self.epsilon * 0.5, 
                                         size=self.image_shape)
-                new_noise = np.abs(new_noise)
+                new_noise = np.clip(new_noise, 0., 1.)
                 new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
 
         if self.ExistInTable(new_noise, self.noise_table):
@@ -232,13 +232,13 @@ class BlackBoxAgent(object):
             Save all tables and dictionaries
         """
         print("----------- saving image table -----------")
-        with open("tables/image_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_img:
+        with open("tables_" + self.noise_type + "/image_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_img:
             pickle.dump(self.image_table, f_img)
         print("----------- saving noise table -----------")
-        with open("tables/noise_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_noise:
+        with open("tables_" + self.noise_type + "/noise_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_noise:
             pickle.dump(self.noise_table, f_noise)
         print("----------- saving agent table -----------")
-        with open("tables/agent_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_agent:
+        with open("tables_" + self.noise_type + "/agent_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "wb") as f_agent:
             pickle.dump(self.agent_table, f_agent)
 
     def LoadTables(self,):
@@ -247,13 +247,13 @@ class BlackBoxAgent(object):
             Load all saved tables.
         """
         print("----------- loading image table -----------")
-        with open("tables/image_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_img:
+        with open("tables_" + self.noise_type + "/image_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_img:
             self.image_table = pickle.load(f_img)
         print("----------- loading noise table -----------")
-        with open("tables/noise_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_noise:
+        with open("tables_" + self.noise_type + "/noise_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_noise:
             self.noise_table = pickle.load(f_noise)
         print("----------- loading noise table -----------")
-        with open("tables/agent_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_agent:
+        with open("tables_" + self.noise_type + "/agent_table" + str(self.epsilon) + str(self.alpha) + str(self.reward_threshold) + ".pickle", "rb") as f_agent:
             self.agent_table = pickle.load(f_agent)
 
             

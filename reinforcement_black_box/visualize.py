@@ -40,7 +40,7 @@ def ShuffleAndSelect(image_set, label_set, image_num):
     label_set_selected = label_set[:image_num]
     return image_set_selected, label_set_selected
 
-def GetResults(agent, env, image_set, label_set, noise_epsilon, alpha):
+def GetResults(agent, env, image_set, label_set, noise_epsilon, alpha, folder_name):
     """
     Function:
         Get the results according to the current parameters.
@@ -61,11 +61,11 @@ def GetResults(agent, env, image_set, label_set, noise_epsilon, alpha):
         axes[0, i].imshow(adv_sample, cmap='gray')
         axes[0, i].axis('off')
         axes[0, i].set_title('acc loss:' + str(np.round(acc_loss, 2)), fontsize=12, fontweight='bold')
-    plt.savefig('plots/eps_' + str(np.round(noise_epsilon, 2)) \
+    plt.savefig(folder_name + 'eps_' + str(np.round(noise_epsilon, 2)) \
                 + '_alpha_' + str(np.round(alpha, 2)) + '.png')
     # plt.show()
 
-def ResultsOnCurrentPara(noise_epsilon, alpha, env, image_set, label_set, noise_type):
+def ResultsOnCurrentPara(noise_epsilon, alpha, env, image_set, label_set, noise_type, folder_name):
     """
     Function:
         Get the visualized results on current parameters.
@@ -81,9 +81,9 @@ def ResultsOnCurrentPara(noise_epsilon, alpha, env, image_set, label_set, noise_
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay, noise_type)
     agent.LoadTables()
 
-    GetResults(agent, env, image_set, label_set, noise_epsilon, alpha)
+    GetResults(agent, env, image_set, label_set, noise_epsilon, alpha, folder_name)
 
-def OriginalPlot(image_set):
+def OriginalPlot(image_set, folder_name):
     """
     Function:
         Plot original set.
@@ -97,7 +97,7 @@ def OriginalPlot(image_set):
         sample = np.squeeze(state)
         axes[0, i].imshow(sample, cmap='gray')
         axes[0, i].axis('off')
-    plt.savefig('plots/original.png')
+    plt.savefig(folder_name + 'original.png')
 
 def Plotting(epsilons, alphas, noise_type):
     """
@@ -109,17 +109,18 @@ def Plotting(epsilons, alphas, noise_type):
 
     batch_size = 1
     img_num = 10
+    folder_name = 'plots_' + noise_type + '/'
     env = Environment(batch_size)
 
     _, _, x_test, y_test = env.MnistDataset()
     x_select, y_select = ShuffleAndSelect(x_test, y_test, img_num)
 
-    OriginalPlot(x_select)
+    OriginalPlot(x_select, folder_name)
 
     for ind in tqdm(range(len(epsilons))):
         epsilon = epsilons[ind]
         for alpha in alphas:
-            ResultsOnCurrentPara(epsilon, alpha, env, x_select, y_select, noise_type)
+            ResultsOnCurrentPara(epsilon, alpha, env, x_select, y_select, noise_type, folder_name)
 
 def Comparing(mode, epsilons, alphas):
     """
@@ -160,8 +161,8 @@ if __name__ == "__main__":
     mode: either "eps" or "alpha"
     noise_type: either 'gaussian' or 'uniform'
     """
-    epsilons = [1.0, 0.8, 0.6, 0.4, 0.2]
-    alphas = [1.0, 0.5, 0.1, 0.05, 0.01]
+    epsilons = [1.0, 0.8, 0.6, 0.4]
+    alphas = [1.0, 0.8, 0.6, 0.4]
     noise_type = 'gaussian'
     
     Plotting(epsilons, alphas, noise_type)

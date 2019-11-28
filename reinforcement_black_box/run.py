@@ -10,9 +10,9 @@ import tensorflow as tf
 import tensorflow.keras as keras
 # tf.compat.v1.disable_eager_execution()
 # ##### gpu memory management #####
-# physical_devices = tf.config.experimental.list_physical_devices('GPU')
-# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-# tf.config.experimental.set_memory_growth(physical_devices[0], True)
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 from tensorflow.keras.models import load_model
 
@@ -40,7 +40,7 @@ def debug(noise_epsilon, alpha, noise_type, load_tables=False, save_tables=True)
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay, noise_type)
 
     # set tensorboard
-    log_dir = "logs_gaussian/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
+    log_dir = "logs_" + noise_type + "/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
     summary_writer = tf.summary.create_file_writer(log_dir)
 
     if load_tables:
@@ -97,8 +97,16 @@ if __name__ == "__main__":
         'uniform'
     """
     noise_type = 'gaussian'
-    epsilons = [1.0, 0.9, 0.8, 0.7]
-    alphas = [0.5, 1]
+    epsilons = [1.0, 0.8, 0.6, 0.4]
+    alphas = [1.0, 0.8, 0.6, 0.4]
+    for ind in tqdm(range(len(epsilons))):
+        epsilon = epsilons[ind]
+        for alpha in alphas:
+            debug(epsilon, alpha, noise_type)
+
+    noise_type = 'uniform'
+    epsilons = [1.0, 0.8, 0.6, 0.4]
+    alphas = [1.0, 0.8, 0.6, 0.4]
     for ind in tqdm(range(len(epsilons))):
         epsilon = epsilons[ind]
         for alpha in alphas:
