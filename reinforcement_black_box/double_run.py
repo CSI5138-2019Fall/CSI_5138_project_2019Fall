@@ -101,11 +101,76 @@ def debug(load_tables=False, save_tables=True):
         else:
             continue
 
+def Comp(load_tables=False, save_tables=True):
+    # reset graph
+    tf.keras.backend.clear_session()
+    # hyper-parameters settings
+    batch_size = 1
+    image_shape = (batch_size, 28, 28, 1)
+    noise_epsilon = 1.0 # max value of the images is 1.0
+    exploration_decay = 0.95
+    exploration_decay_steps = 1000
+    alpha = 0.5
+    noise_type = 'gaussian'
+    #############################################
+    similarity_threshold = 0.1
+    reward_thres = 0.9
+
+    env = Environment(batch_size)
+    agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay, noise_type)
+
+    # set tensorboard
+    log_dir = "logs_double_" + noise_type + "/compare" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
+    summary_writer = tf.summary.create_file_writer(log_dir)
+
+    if load_tables:
+        agent.LoadTables()
+
+    acc_calculator = []
+
+    i = -1
+    while agent.exploration_rate >= 1e-2:
+        i += 1
+        state, state_label = env.State()
+        action, noise = agent.GenerateAdvSample(state)
+        reward = env.Reward(action, state_label)
+        agent.UpdateTable(state, noise, reward)
+
+        img_table_size = len(agent.image_table)
+        noise_table_size = len(agent.noise_table)
+
+        acc_calculator.append(reward)
+
+        with summary_writer.as_default():
+            tf.summary.scalar('img_table_size', img_table_size, step=i)
+
+        if (not agent.decay_cmd):
+            agent.IfDecay()
+
+        if agent.decay_cmd and ((i+1) % exploration_decay_steps == 0):
+            agent.UpdateExplorationRate()
+            with summary_writer.as_default():
+                tf.summary.scalar('exploration_rate', agent.exploration_rate, step=i)
+
+        if save_tables:
+            if i % 2000 == 0:
+                agent.SaveTables()
+
+        if len(acc_calculator) >= 20:
+            acc_calculator = np.array(acc_calculator)
+            acc = np.mean(acc_calculator)
+            with summary_writer.as_default():
+                tf.summary.scalar('average_confidence_loss', acc, step=i)
+            acc_calculator = []
+
+        if i >= 80000:
+            break
+        else:
+            continue
+
 
 if __name__ == "__main__":
-    """
-    noise_type:
-        'gaussian'
-        'uniform'
-    """
-    debug()
+
+    # debug()
+
+    Comp()
