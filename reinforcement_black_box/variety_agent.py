@@ -90,7 +90,7 @@ class varietyAgent(object):
         Function:
             Update the table and reset the reward if necessary.
         """
-        if not self.ExistInTable(image, self.image_table):
+        if not self.ExistInTable(image, self.original_img_table):
             self.UpdateState(image)
         image_keyname = self.StateSearching(image)
         current_adv = np.clip(image + noise, 0., 1.)
@@ -119,16 +119,37 @@ class varietyAgent(object):
             reward = reward     
         return reward
 
+    def SizeOfTable(self,):
+        """
+        Function:
+            Get the current size of the agent table as visualization requires.
+        """
+        total_num = []
+        for each_key in self.original_img_table.keys():
+            num = len(self.adv_sample_table[each_key]['adv'])
+            total_num.append(num)
+        return total_num
+
+    def Logging(self, num):
+        """
+        Function:
+            Whether to start logging the tensorboard.
+        """
+        logging = False
+        if len(self.original_img_table.keys()) == num:
+            logging = True
+        return logging
+
     def SaveTables(self,):
         """
         Function:
             Save all tables and dictionaries
         """
-        print("----------- saving image table -----------")
-        with open("tables/image_table" + str(self.delta) + str(self.gamma)".pickle", "wb") as f_img:
+        print("----------- saving second agent image table -----------")
+        with open("tables_sec/image_table" + str(self.delta) + str(self.gamma) + ".pickle", "wb") as f_img:
             pickle.dump(self.original_img_table, f_img)
-        print("----------- saving agent table -----------")
-        with open("tables/agent_table" + str(self.delta) + str(self.gamma)".pickle", "wb") as f_agent:
+        print("----------- saving second agent agent table -----------")
+        with open("tables_sec/agent_table" + str(self.delta) + str(self.gamma) + ".pickle", "wb") as f_agent:
             pickle.dump(self.adv_sample_table, f_agent)
 
     def LoadTables(self,):
@@ -136,10 +157,10 @@ class varietyAgent(object):
         Function:
             Load all saved tables.
         """
-        print("----------- loading image table -----------")
-        with open("tables/image_table" + str(self.delta) + str(self.gamma)".pickle", "rb") as f_img:
+        print("----------- loading second agent image table -----------")
+        with open("tables_sec/image_table" + str(self.delta) + str(self.gamma) + ".pickle", "rb") as f_img:
             self.original_img_table = pickle.load(f_img)
-        print("----------- loading agent table -----------")
-        with open("tables/agent_table" + str(self.delta) + str(self.gamma)".pickle", "rb") as f_agent:
+        print("----------- loading second agent agent table -----------")
+        with open("tables_sec/agent_table" + str(self.delta) + str(self.gamma) + ".pickle", "rb") as f_agent:
             self.adv_sample_table = pickle.load(f_agent)
 

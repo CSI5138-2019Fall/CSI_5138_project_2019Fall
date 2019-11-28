@@ -10,9 +10,9 @@ import tensorflow as tf
 import tensorflow.keras as keras
 # tf.compat.v1.disable_eager_execution()
 # ##### gpu memory management #####
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
+# physical_devices = tf.config.experimental.list_physical_devices('GPU')
+# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+# tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 from tensorflow.keras.models import load_model
 
@@ -22,28 +22,34 @@ from tqdm import tqdm
 
 from environment import Environment
 from agent_improv2 import BlackBoxAgent
+from variety_agent import varietyAgent
 
-
-def debug(noise_epsilon, alpha, noise_type, load_tables=False, save_tables=True):
+def debug(load_tables=False, save_tables=True):
     # reset graph
     tf.keras.backend.clear_session()
     # hyper-parameters settings
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
-    # noise_epsilon = 0.8 # max value of the images is 1.0
+    noise_epsilon = 1.0 # max value of the images is 1.0
     exploration_decay = 0.8
-    exploration_decay_steps = 800
-    # alpha = 0.5
+    exploration_decay_steps = 1000
+    alpha = 0.5
+    noise_type = 'gaussian'
+    #############################################
+    similarity_threshold = 0.1
+    reward_thres = 0.9
 
     env = Environment(batch_size)
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay, noise_type)
+    secondAgent = varietyAgent(similarity_threshold, reward_thres)
 
     # set tensorboard
-    log_dir = "logs_" + noise_type + "/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
+    log_dir = "logs_double_" + noise_type + "/" + "nmax_" + str(noise_epsilon) + "_alpha_" + str(agent.alpha) + "_threshold_" + str(agent.reward_threshold)
     summary_writer = tf.summary.create_file_writer(log_dir)
 
     if load_tables:
         agent.LoadTables()
+        secondAgent.LoadTables()
 
     acc_calculator = []
 
@@ -53,16 +59,19 @@ def debug(noise_epsilon, alpha, noise_type, load_tables=False, save_tables=True)
         state, state_label = env.State()
         action, noise = agent.GenerateAdvSample(state)
         reward = env.Reward(action, state_label)
+        reward = secondAgent.PipeLine(state, noise, reward)
         agent.UpdateTable(state, noise, reward)
 
         img_table_size = len(agent.image_table)
         noise_table_size = len(agent.noise_table)
 
         acc_calculator.append(reward)
+        size_of_secondagent = secondAgent.SizeOfTable()
 
-        with summary_writer.as_default():
-            tf.summary.scalar('img_table_size', img_table_size, step=i)
-            tf.summary.scalar('noise_table_size', noise_table_size, step=i)
+        if secondAgent.Logging(env.num_imgs):
+            with summary_writer.as_default():
+                tf.summary.histogram('sec_agent_tablesize', size_of_secondagent, step=i)
+                tf.summary.scalar('second_agent_size', np.sum(size_of_secondagent), step=i)
 
         if (not agent.decay_cmd):
             agent.IfDecay()
@@ -75,6 +84,7 @@ def debug(noise_epsilon, alpha, noise_type, load_tables=False, save_tables=True)
         if save_tables:
             if i % 2000 == 0:
                 agent.SaveTables()
+                secondAgent.SaveTables()
 
         if len(acc_calculator) >= 20:
             acc_calculator = np.array(acc_calculator)
@@ -83,7 +93,7 @@ def debug(noise_epsilon, alpha, noise_type, load_tables=False, save_tables=True)
                 tf.summary.scalar('average_confidence_loss', acc, step=i)
             acc_calculator = []
 
-        if i >= 20000:
+        if i >= 30000:
             break
         else:
             continue
@@ -95,10 +105,4 @@ if __name__ == "__main__":
         'gaussian'
         'uniform'
     """
-    noise_type = 'gaussian'
-    epsilons = [1.0, 0.8, 0.6, 0.4]
-    alphas = [1.0, 0.8, 0.6, 0.4]
-    for ind in tqdm(range(len(epsilons))):
-        epsilon = epsilons[ind]
-        for alpha in alphas:
-            debug(epsilon, alpha, noise_type)
+    debug()
