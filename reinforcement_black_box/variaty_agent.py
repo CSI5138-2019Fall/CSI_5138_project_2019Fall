@@ -17,52 +17,105 @@ class varietyAgent(object):
         self.delta = similarity_threshold
         self.gamma = reward_threshold
         # gonna use np.array since it occupys less memory i believe
-        self.adv_sample_table = None
+        self.original_img_table = {}
+        self.adv_sample_table = {}
 
-    def VerifyReward(self, reward):
+    def UpdateState(self, new_image):
         """
         Function:
-            Find out the current sample is a good sample or not.
+            Update tables for previous unseen input data.
         """
-        ret = reward >= self.gamma
-        return ret
+        current_len_imgt = len(self.adv_sample_table)
+        new_index = current_len_imgt
+        new_key = 'img' + str(new_index)
+        self.original_img_table[new_key] = new_image
+        self.adv_sample_table[new_key] = {'adv': [], 
+                                        'accl': [],
+                                        'mag': []}
 
-    def SimilarToExistance(self, adv_sample):
+    def FindIndex(self, data, table, keywords):
+        """
+        Function: 
+            Find the key according to the value in a dictionary.
+        """
+        finding = [x for x,y in table.items() if (y==data).all()]
+        found = finding[0]
+        index = found.replace(keywords, '')
+        index = int(index)
+        return index
+
+    def StateSearching(self, input_image):
         """
         Function:
-            Find out if the current adversarial sample is similar
-        to any of the adv samples inside the table.
+            Search the image inside the teble and output keyname.
+        """
+        image_index = self.FindIndex(input_image, self.original_img_table, 'img')
+        image_keyname = 'img' + str(image_index)
+        return image_keyname
+
+    def ExistInTable(self, value, table):
+        """
+        Function:
+            Find out whether the value is in the table
+        """
+        return np.any([(value==y).all() for x,y in table.items()]) 
+
+    def UpdateDict(self, image_keyname, adv_image, accl, magnitude):
+        """
+        Function:
+            Literally update the table.
+        """
+        self.adv_sample_table[image_keyname]['adv'].append(adv_image)
+        self.adv_sample_table[image_keyname]['accl'].append(accl)
+        self.adv_sample_table[image_keyname]['mag'].append(magnitude)
+
+    def SimilarToList(self, value, val_list):
+        """
+        Function:
+            If the value similar to any value in the table.
         """
         exits = False
-        for i in range(self.adv_sample_table.shape[0]):
-            if np.max(np.abs(self.adv_sample_table[i] - adv_sample)) > self.delta:
+        for each in val_list:
+            similarity = np.abs(each - value)
+            simi_max = np.max(similarity)
+            if simi_max < self.delta:
                 exits = True
                 break
             else:
-                exist = False
+                exits = False
         return exits
 
-    def UpdateAndReset(self, image, noise, reward):
+    def UpdateTable(self, image, noise, reward):
         """
         Function:
-            If it is worth storing, then store it into the table
-        and reset the reward as 0.
+            Update the table and reset the reward if necessary.
         """
-        if self.VerifyReward(reward):
-            adv_sample = image + noise
-            adv_sample = np.where(adv_sample < 0, 0., adv_sample)
-            if self.adv_sample_table is None:
-                self.adv_sample_table = adv_sample
-            else:
-                if not self.SimilarToExistance(adv_sample):
-                    self.adv_sample_table = np.concatenate([self.adv_sample_table, adv_sample], axis = 0)
-                    reward = 0.
-                else:
-                    reward = 0.
+        if not self.ExistInTable(image, self.image_table):
+            self.UpdateState(image)
+        image_keyname = self.StateSearching(image)
+        current_adv = np.clip(image + noise, 0., 1.)
+        noise_magnitude = current_adv - image
+        if len(self.adv_sample_table[image_keyname]['adv']) == 0:
+            self.UpdateDict(image_keyname, current_adv, reward, noise_magnitude)
+            exitance = False
         else:
-            reward = reward
+            exitance = self.SimilarToList(current_adv, self.adv_sample_table[image_keyname]['adv'])
+            if not exitance:
+                self.UpdateDict(image_keyname, current_adv, reward, noise_magnitude)
+        return 1 - exitance
+
+    def PipeLine(self, image, noise, reward):
+        """
+        Function:
+            Go through the pipeline and update the reward.
+        """
+        if reward > self.gamma:
+            updated = self.UpdateTable(image, noise, reward)
+            if updated:
+                reward = 0
+            else:
+                reward = reward 
+        else:
+            reward = reward     
         return reward
-
-
-
 
