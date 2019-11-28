@@ -55,6 +55,7 @@ def GetResults(agent, env, image_set, label_set, noise_epsilon, alpha):
         adv_noise = agent.VerifyAdvSample(state)
         if adv_noise is not None:
             adv_sample = state + adv_noise
+            adv_sample = np.clip(adv_sample, 0., 1.)
             acc_loss = env.Reward(adv_sample, state_label)
             adv_sample = np.squeeze(adv_sample)
         axes[0, i].imshow(adv_sample, cmap='gray')

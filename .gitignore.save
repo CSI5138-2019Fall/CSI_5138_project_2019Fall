@@ -1,0 +1,8 @@
+reinforcement_black_box/logs
+reinforcement_black_box/tables
+reinforcement_black_box/logs2
+reinforcement_black_box/logs_uniform
+reinforcement_black_box/logs_gaussian
+            PlotWithSparse(x, y, ax, colors[i], "epsilon_" + str(np.round(epsilon,2)) + \
+                                                "_alpha_" + str(np.round(alpha,2)))
+

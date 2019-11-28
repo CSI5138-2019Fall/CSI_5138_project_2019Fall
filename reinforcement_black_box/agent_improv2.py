@@ -91,7 +91,6 @@ class BlackBoxAgent(object):
                                         size=self.image_shape)
         new_noise = np.abs(new_noise)
         new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-        new_noise = np.where(new_noise > 1., 1., new_noise)
 
         if len(self.agent_table[image_keyname]['noise']) == 0:
             noise_list_tmp = []
@@ -108,7 +107,6 @@ class BlackBoxAgent(object):
                                     size=self.image_shape)
             new_noise = np.abs(new_noise)
             new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
-            new_noise = np.where(new_noise > 1., 1., new_noise)
 
         if self.ExistInTable(new_noise, self.noise_table):
             noise_keyname = self.NoiseSearching(new_noise)
@@ -190,7 +188,7 @@ class BlackBoxAgent(object):
             noise = self.SelectNoise(image_keyname)
 
         adv_sample = input_image + noise
-        # adv_sample = np.where(adv_sample < 0., 0., adv_sample)
+        adv_sample = np.clip(adv_sample, 0., 1.)
         return adv_sample, noise
 
     def VerifyAdvSample(self, input_image):

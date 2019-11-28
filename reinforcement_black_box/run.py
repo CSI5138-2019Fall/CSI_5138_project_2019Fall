@@ -68,12 +68,11 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
         if (not agent.decay_cmd):
             agent.IfDecay()
 
-        if agent.decay_cmd and ((i+1) % exploration_decay_steps == 0):
-            agent.UpdateExplorationRate()
-            with summary_writer.as_default():
-                tf.summary.scalar('exploration_rate', agent.exploration_rate, step=i)
-
-        if save_tables:
+        if agent.decay_cmd and ((i+1) % exploration_decay_stepe=self.epsilon * 0.5, 
+                                    size=self.image_shape)
+            new_noise = np.abs(new_noise)
+            new_noise = np.round(new_noise, self.eps_dcimal_places + self.precision)
+            new_noise = np.where(new_noise > 1., 1., new_noise)
             if i % 2000 == 0:
                 agent.SaveTables()
 
@@ -91,7 +90,7 @@ def debug(noise_epsilon, alpha, load_tables=False, save_tables=True):
 
 
 if __name__ == "__main__":
-    epsilons = [1.0, 0.9, 0.8, 0.7]
+    epsilons = [1.0, 0.9, 0.8]
     alphas = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
     for ind in tqdm(range(len(epsilons))):
         epsilon = epsilons[ind]
