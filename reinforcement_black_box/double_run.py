@@ -31,13 +31,13 @@ def debug(load_tables=False, save_tables=True):
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
     noise_epsilon = 1.0 # max value of the images is 1.0
-    exploration_decay = 0.95
+    exploration_decay = 0.9
     exploration_decay_steps = 1000
     alpha = 0.5
     noise_type = 'gaussian'
     #############################################
     similarity_threshold = 0.1
-    reward_thres = 0.9
+    reward_thres = 0.85
 
     env = Environment(batch_size)
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay, noise_type)
@@ -96,7 +96,7 @@ def debug(load_tables=False, save_tables=True):
                 tf.summary.scalar('average_confidence_loss', acc, step=i)
             acc_calculator = []
 
-        if i >= 80000:
+        if i >= 70000:
             break
         else:
             continue
@@ -108,13 +108,13 @@ def Comp(load_tables=False, save_tables=True):
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
     noise_epsilon = 1.0 # max value of the images is 1.0
-    exploration_decay = 0.95
+    exploration_decay = 0.9
     exploration_decay_steps = 1000
     alpha = 0.5
     noise_type = 'gaussian'
     #############################################
     similarity_threshold = 0.1
-    reward_thres = 0.9
+    reward_thres = 0.85
 
     env = Environment(batch_size)
     agent = BlackBoxAgent(image_shape, noise_epsilon, alpha, exploration_decay, noise_type)
@@ -139,10 +139,17 @@ def Comp(load_tables=False, save_tables=True):
         img_table_size = len(agent.image_table)
         noise_table_size = len(agent.noise_table)
 
+        counter = agent.QualifiedNum(state, noise, \
+                        reward, similarity_threshold, reward_thres)
+
         acc_calculator.append(reward)
 
         with summary_writer.as_default():
             tf.summary.scalar('img_table_size', img_table_size, step=i)
+
+        # if secondAgent.Logging(10):
+        with summary_writer.as_default():
+            tf.summary.scalar('second_agent_size', counter, step=i)
 
         if (not agent.decay_cmd):
             agent.IfDecay()
@@ -163,7 +170,7 @@ def Comp(load_tables=False, save_tables=True):
                 tf.summary.scalar('average_confidence_loss', acc, step=i)
             acc_calculator = []
 
-        if i >= 80000:
+        if i >= 70000:
             break
         else:
             continue

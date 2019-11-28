@@ -84,8 +84,8 @@ def PlotAll(mode, noise_type, xlim, ylim):
     exploration_decay = 0.8
     exploration_decay_steps = 800
     # alpha = 0.5
-    epsilons = [1.0, 0.8, 0.6, 0.4]
-    alphas = [1.0, 0.8, 0.6]
+    epsilons = [1.0, 0.8, 0.6]
+    alphas = [1.0, 0.8, 0.6, 0.4]
 
     fig = plt.figure()
     ax = fig.add_subplot(111)

@@ -27,6 +27,7 @@ class BlackBoxAgent(object):
         # self.reward_threshold = -100
         self.decay_threshold = 0.6
         self.decay_cmd = False
+        self.comparison_table = []
         self.image_table = {}
         self.noise_table = {}
         self.agent_table = {}
@@ -226,6 +227,31 @@ class BlackBoxAgent(object):
             self.agent_table[image_keyname]['reward'][index] = self.alpha * reward - \
                     (1 - self.alpha) * noise_mean
 
+    def QualifiedNum(self, img, noise, acc, similarity_threshold, reward_threshold):
+        """
+        Function:
+            Calculate qualified number for the comparison with second agent.
+        """
+        current_adv = np.squeeze(np.clip(img + noise, 0., 1.))
+        if acc > reward_threshold:
+            if len(self.comparison_table) == 0:
+                self.comparison_table.append(current_adv)
+            else:
+                exits = False
+                for i in range(len(self.comparison_table)):
+                    each = self.comparison_table[i]
+                    assert each.shape == current_adv.shape
+                    if np.max(np.abs(current_adv - each)) < similarity_threshold:
+                        exits = True
+                        break
+                    else:
+                        exits = False
+                if not exits:
+                    self.comparison_table.append(current_adv)
+
+        count = len(self.comparison_table)
+        return count
+                
     def SaveTables(self,):
         """
         Function:

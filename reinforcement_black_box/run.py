@@ -96,11 +96,9 @@ if __name__ == "__main__":
         'gaussian'
         'uniform'
     """
-    noise_type = 'gaussian'
-    # epsilons = [1.0, 0.8, 0.6, 0.4]
-    # alphas = [1.0, 0.8, 0.6]
-    epsilons = [1.0]
-    alphas = [0.5]
+    noise_type = 'uniform'
+    epsilons = [1.0, 0.8, 0.6]
+    alphas = [1.0, 0.8, 0.6, 0.4]
     for ind in tqdm(range(len(epsilons))):
         epsilon = epsilons[ind]
         for alpha in alphas:

@@ -11,9 +11,9 @@ import tensorflow as tf
 import tensorflow.keras as keras
 # tf.compat.v1.disable_eager_execution()
 # ##### gpu memory management #####
-# physical_devices = tf.config.experimental.list_physical_devices('GPU')
-# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-# tf.config.experimental.set_memory_growth(physical_devices[0], True)
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 from tensorflow.keras.models import load_model
 
 from environment import Environment
@@ -161,8 +161,8 @@ if __name__ == "__main__":
     mode: either "eps" or "alpha"
     noise_type: either 'gaussian' or 'uniform'
     """
-    epsilons = [1.0, 0.8, 0.6, 0.4]
-    alphas = [1.0, 0.8, 0.6]
+    epsilons = [1.0, 0.8, 0.6]
+    alphas = [1.0, 0.8, 0.6, 0.4]
     noise_type = 'gaussian'
     
     Plotting(epsilons, alphas, noise_type)
