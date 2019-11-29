@@ -141,6 +141,26 @@ class varietyAgent(object):
             logging = True
         return logging
 
+    def VerifyAdvSample(self, input_image):
+        """
+        Function:
+            Verify the agent we got by generating the samples.
+        """
+        if not self.ExistInTable(input_image, self.original_img_table):
+            print("----- The current image has never been seen before. -----")
+            adv_sample = None
+            accl = None
+        else:
+            image_keyname = self.StateSearching(input_image)
+            all_mags = self.adv_sample_table[image_keyname]['mag']
+            mag_val = []
+            for mag in all_mags:
+                mag_val.append(np.mean(mag))
+            index_min = np.argmin(mag_val)
+            adv_sample = self.adv_sample_table[image_keyname]['adv'][index_min]
+            accl = self.adv_sample_table[image_keyname]['accl'][index_min]
+        return adv_sample, accl
+
     def SaveTables(self,):
         """
         Function:

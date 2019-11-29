@@ -57,22 +57,23 @@ def PlotWithSparse(x, y, ax, color, line_label):
     # set labels for legend
     line.set_label(line_label)
 
-def GetOnePlot(epsilon, alpha, threshold, noise_type):
+def GetOnePlot(epsilon, alpha, threshold, prefix, descrip):
     """
     Function:
         Get the tensorboard file with the specific requirements.
     """
     # get the file name
-    file_pref = "tensorboard_csv_" + noise_type + "/run-nmax_" + str(epsilon) + "_alpha_" + \
-                str(alpha) + "_threshold_" + str(threshold) + "-tag-"
+    file_pref = "tensorboard_csv_sec/" + "run-" + prefix + "nmax_" + \
+                str(epsilon) + "_alpha_" + str(alpha) + "_threshold_" + \
+                str(threshold) + "-tag-"
 
-    file_descrip = "average_confidence_loss.csv"
+    file_descrip = descrip + ".csv"
 
     file_name = file_pref + file_descrip
     x, y = ReadCsv(file_name)
     return x, y
 
-def PlotAll(mode, noise_type, xlim, ylim):
+def PlotAll(mode, xlim, ylim):
     """
     Function:
         Plot all data for comparison.
@@ -80,59 +81,61 @@ def PlotAll(mode, noise_type, xlim, ylim):
     # hyper-parameters settings
     batch_size = 1
     image_shape = (batch_size, 28, 28, 1)
-    # noise_epsilon = 0.8 # max value of the images is 1.0
     exploration_decay = 0.8
     exploration_decay_steps = 800
-    # alpha = 0.5
-    epsilons = [1.0, 0.8, 0.6]
-    alphas = [1.0, 0.8, 0.6, 0.4]
+    epsilon = 1.0
+    alpha = 0.5
+    noise_type = 'gaussian'
+
+    agent = BlackBoxAgent(image_shape, epsilon, alpha, exploration_decay, noise_type)
+    threshold = agent.reward_threshold
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
     colors = ['r', 'b', 'm', 'g', 'k', 'y']
 
-    i = 0
-    if mode == "eps":
-        for epsilon in epsilons:
-            alpha = 1.0
-            agent = BlackBoxAgent(image_shape, epsilon, alpha, exploration_decay, noise_type)
-            threshold = agent.reward_threshold
-            x, y = GetOnePlot(epsilon, alpha, threshold, noise_type)
-            PlotWithSparse(x, y, ax, colors[i], "epsilon_" + str(np.round(epsilon,2)) + \
-                                                "_alpha_" + str(np.round(alpha,2)))
-            i += 1
-    elif mode == "alpha":
-        for alpha in alphas:
-            epsilon = 1.0
-            agent = BlackBoxAgent(image_shape, epsilon, alpha, exploration_decay, noise_type)
-            threshold = agent.reward_threshold
-            x, y = GetOnePlot(epsilon, alpha, threshold, noise_type)
-            PlotWithSparse(x, y, ax, colors[i], "epsilon_" + str(np.round(epsilon,2)) + \
-                                                "_alpha_" + str(np.round(alpha,2)))
-            i += 1
+    if mode == "accl":
+        descrip = "average_confidence_loss"
+        x, y = GetOnePlot(epsilon, alpha, threshold, "compare", descrip)
+        PlotWithSparse(x, y, ax, colors[0], "one_agent")
+        x, y = GetOnePlot(epsilon, alpha, threshold, "", descrip)
+        PlotWithSparse(x, y, ax, colors[1], "double_agent")
+        title_content = "comparison of the accuracy loss"
+        y_label = "accuracy loss"
+    elif mode == "agentsize":
+        descrip = "second_agent_size"
+        x, y = GetOnePlot(epsilon, alpha, threshold, "compare", descrip)
+        PlotWithSparse(x, y, ax, colors[0], "one_agent")
+        x, y = GetOnePlot(epsilon, alpha, threshold, "", descrip)
+        PlotWithSparse(x, y, ax, colors[1], "double_agent")
+        title_content = "comparison of the number of qualified adversarial samples"
+        y_label = "number of adversarial samples"
+    elif mode == "imgsize":
+        descrip = "secag_imgt_size"
+        x, y = GetOnePlot(epsilon, alpha, threshold, "", descrip)
+        PlotWithSparse(x, y, ax, colors[0], "num of images")
+        title_content = "change of the double agent's image table size"        
+        y_label = "number of different images"
     else:
-        raise ValueError("------ wrong mode input, please doublecheck it. --------")
-    
-    if mode == "eps":
-        title_content = "influence of epsilon (noise ditribution variance)"
-    elif mode == "alpha":
-        title_content = "influence of alpha (weighted coefficient)"
+        raise ValueError("---- Wrong mode name, please doublecheck it. ----")
     
     ax.set_title(title_content)
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
     ax.set_xlabel("training steps")
-    ax.set_ylabel("accuracy loss")
+    ax.set_ylabel(y_label)
     ax.legend()
     ax.grid()
-    plt.savefig("plots_" + noise_type + "/compare_" + mode + ".png")
+    plt.savefig("plots_double/compare_" + mode + ".png")
     plt.show()
 
 if __name__ == "__main__":
     """
-    mode: either "eps" or "alpha"
+    mode:
+        "accl"
+        "agentsize"
+        "imgsize"
     """
 
-    mode_name = "eps"
-    noise_type = "gaussian"
-    PlotAll(mode_name, noise_type, [0, 20000], [0, 0.9])
+    mode_name = "imgsize"
+    PlotAll(mode_name, [0, 45000], [0, 80])
