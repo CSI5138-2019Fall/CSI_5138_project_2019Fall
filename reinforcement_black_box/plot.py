@@ -8,8 +8,7 @@ import csv
 from glob import glob
 
 from environment import Environment
-# from table import BlackBoxAgent
-from agent_improv2 import BlackBoxAgent
+from agent_bb import BlackBoxAgent
 
 
 def ReadCsv(filename):

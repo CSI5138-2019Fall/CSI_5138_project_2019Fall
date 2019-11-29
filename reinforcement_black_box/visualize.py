@@ -11,14 +11,14 @@ import tensorflow as tf
 import tensorflow.keras as keras
 # tf.compat.v1.disable_eager_execution()
 # ##### gpu memory management #####
-# physical_devices = tf.config.experimental.list_physical_devices('GPU')
-# assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-# tf.config.experimental.set_memory_growth(physical_devices[0], True)
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 from tensorflow.keras.models import load_model
 
 from environment import Environment
 # from table import BlackBoxAgent
-from agent_improv2 import BlackBoxAgent
+from agent_bb import BlackBoxAgent
 # import matplotlib
 # matplotlib.use('tkagg')
 import matplotlib.pyplot as plt

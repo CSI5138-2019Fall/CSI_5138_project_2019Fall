@@ -21,7 +21,7 @@ import pickle
 from tqdm import tqdm
 
 from environment import Environment
-from agent_improv2 import BlackBoxAgent
+from agent_bb import BlackBoxAgent
 from variety_agent import varietyAgent
 
 def debug(load_tables=False, save_tables=True):
