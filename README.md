@@ -3,6 +3,6 @@
 
 ***For our work on the Double-Agent of a Bandit-like problem, please navigate to the directory "reinforcement_black_box"***
 
-'''
+```
 cd reinforcement_black_box
-'''
+```
