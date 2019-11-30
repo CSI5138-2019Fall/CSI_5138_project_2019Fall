@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats as stats
 import math
-import seaborn
 
 mu = 0
 sigma = 0.5
@@ -25,15 +24,5 @@ ax.set_ylim([0, 0.85])
 ax.set_xlabel('deviation (* epsilon)')
 ax.set_ylabel('probability')
 
-# ax.spines['left'].set_position('zero')
-# ax.spines['right'].set_color('none')
-# ax.spines['bottom'].set_position('zero')
-# ax.spines['top'].set_color('none')
-
-# # remove the ticks from the top and right edges
-# ax.xaxis.set_ticks_position('bottom')
-# ax.yaxis.set_ticks_position('none')
-
-# seaborn.despine(ax=ax, offset=0)
 plt.savefig("./noise.png")
 plt.show()

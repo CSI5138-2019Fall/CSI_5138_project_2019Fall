@@ -1,2 +1,4 @@
 # project for CSI 5138:F00 (Intro of DL & RL)
-Feel free to modify everything you want.
+## This is project group 3
+
+# For our work on the Double-Agent of a Bandit-like problem, please navigate to the directory "reinforcement_black_box"
