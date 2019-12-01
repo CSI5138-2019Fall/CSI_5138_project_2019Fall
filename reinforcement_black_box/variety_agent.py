@@ -152,11 +152,15 @@ class varietyAgent(object):
             accl = None
         else:
             image_keyname = self.StateSearching(input_image)
-            all_mags = self.adv_sample_table[image_keyname]['mag']
-            mag_val = []
-            for mag in all_mags:
-                mag_val.append(np.mean(mag))
-            index_min = np.argmin(mag_val)
+            # all_mags = self.adv_sample_table[image_keyname]['mag']
+            # mag_val = []
+            # for mag in all_mags:
+            #     mag_val.append(np.mean(mag))
+            all_accs = self.adv_sample_table[image_keyname]['accl']
+            accs = []
+            for acc in all_accs:
+                accs.append(acc)
+            index_min = np.argmax(accs)
             adv_sample = self.adv_sample_table[image_keyname]['adv'][index_min]
             accl = self.adv_sample_table[image_keyname]['accl'][index_min]
         return adv_sample, accl
